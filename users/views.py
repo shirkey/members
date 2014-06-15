@@ -22,8 +22,7 @@ from users.user import (
     delete_user,
     get_user,
     get_user_by_email,
-    get_all_users,
-    get_role_name)
+    get_all_users)
 from users.config import MAIL_ADMIN
 
 
@@ -34,11 +33,6 @@ def map_view():
     information_modal = render_template('html/information_modal.html')
     #noinspection PyUnresolvedReferences
     data_privacy_content = render_template('html/data_privacy.html')
-    #noinspection PyUnresolvedReferences
-    legend = render_template(
-        'html/legend.html',
-        user_icons=APP.config['USER_ICONS']
-    )
     #noinspection PyUnresolvedReferences
     user_form_template = render_template('html/user_form.html')
     user_menu = dict(
@@ -61,7 +55,6 @@ def map_view():
         user_icons=APP.config['USER_ICONS'],
         information_modal=information_modal,
         data_privacy_content=data_privacy_content,
-        legend=legend,
         user_form_template=user_form_template,
         user_menu=user_menu,
         user_menu_button=user_menu_button
@@ -73,12 +66,9 @@ def map_view():
 
 @APP.route('/users.json', methods=['POST'])
 def users_view():
-    """Return a json document of users with given role who have registered."""
-    # Get data:
-    user_role = int(request.form['user_role'])
-
+    """Return a json document of users who have registered."""
     # Create model user
-    all_users = get_all_users(role=user_role)
+    all_users = get_all_users()
     #noinspection PyUnresolvedReferences
     json_users = render_template('json/users.json', users=all_users)
 
@@ -111,7 +101,6 @@ def add_user_view():
     name = str(request.form['name']).strip()
     email = str(request.form['email']).strip()
     website = str(request.form['website'])
-    role = int(request.form['role'])
     email_updates = str(request.form['email_updates'])
     latitude = str(request.form['latitude'])
     longitude = str(request.form['longitude'])
@@ -124,8 +113,6 @@ def add_user_view():
         message['email'] = 'Email address is not valid'
     if not is_required_valid(email):
         message['email'] = 'Email is required'
-    if role not in [0, 1, 2]:
-        message['role'] = 'Role must be checked'
     elif not is_boolean(email_updates):
         message['email_updates'] = 'Notification must be checked'
 
@@ -153,7 +140,6 @@ def add_user_view():
             name=name,
             email=email,
             website=website,
-            role=int(role),
             email_updates=bool(email_updates),
             latitude=float(latitude),
             longitude=float(longitude))
@@ -189,6 +175,7 @@ def edit_user_view(guid):
 
     :param guid: The unique identifier of a user.
     :type guid: str
+
     :returns: Page where user can edit his/her data
     :rtype: HttpResponse
     """
@@ -203,11 +190,6 @@ def edit_user_view(guid):
     information_modal = render_template('html/information_modal.html')
     #noinspection PyUnresolvedReferences
     data_privacy_content = render_template('html/data_privacy.html')
-    #noinspection PyUnresolvedReferences
-    legend = render_template(
-        'html/legend.html',
-        user_icons=APP.config['USER_ICONS']
-    )
     #noinspection PyUnresolvedReferences
     user_form_template = render_template('html/user_form.html')
     user_menu = dict(
@@ -232,7 +214,6 @@ def edit_user_view(guid):
         edited_user_popup_content=user_popup_content,
         information_modal=information_modal,
         data_privacy_content=data_privacy_content,
-        legend=legend,
         user_form_template=user_form_template,
         user_menu=user_menu,
         user_menu_button=user_menu_button
@@ -260,7 +241,6 @@ def edit_user_controller():
     name = str(request.form['name']).strip()
     email = str(request.form['email']).strip()
     website = str(request.form['website'])
-    role = int(request.form['role'])
     email_updates = str(request.form['email_updates'])
     latitude = str(request.form['latitude'])
     longitude = str(request.form['longitude'])
@@ -273,8 +253,6 @@ def edit_user_controller():
         message['email'] = 'Email address is not valid'
     if not is_required_valid(email):
         message['email'] = 'Email is required'
-    if role not in [0, 1, 2]:
-        message['role'] = 'Role must be checked'
     elif not is_boolean(email_updates):
         message['email_updates'] = 'Notification must be checked'
 
@@ -298,7 +276,6 @@ def edit_user_controller():
             name=name,
             email=email,
             website=website,
-            role=int(role),
             email_updates=bool(email_updates),
             latitude=float(latitude),
             longitude=float(longitude))
@@ -342,20 +319,17 @@ def download_view():
     :returns: A csv file containing all users
     :rtype: HttpResponse
     """
-    csv_users = "ID|NAME|WEBSITE|ROLE|LONGITUDE|LATITUDE"
-    all_user_role = (0, 1, 2)
+    csv_users = "ID|NAME|WEBSITE|LONGITUDE|LATITUDE"
     i = 0
-    for user_role in all_user_role:
-        users = get_all_users(user_role)
-        for user in users:
-            i += 1
-            csv_users += '\n%i|%s|%s|%s|%s|%s' % (
-                i,
-                user['name'],
-                user['website'],
-                get_role_name(user['role']),
-                user['longitude'],
-                user['latitude'])
+    users = get_all_users()
+    for user in users:
+        i += 1
+        csv_users += '\n%i|%s|%s|%s|%s' % (
+            i,
+            user['name'],
+            user['website'],
+            user['longitude'],
+            user['latitude'])
 
     filename = '%s-users.csv' % APP.config['PROJECT_NAME']
     content = "attachment;filename='%s'" % filename

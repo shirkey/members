@@ -10,7 +10,6 @@ by anyone visiting the user map page:
     - your longitude
     - your latitude
     - the date you added yourself
-    - your role (user, developer, trainer)
 
 If you are concerned about your privacy, we recommend you edit your record (you can
 do so using the link provided below) and generalise the position of your point (for example

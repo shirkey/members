@@ -44,22 +44,16 @@ function createIconMarkerBase(shadow_icon_path) {
 
 /**
  * Create all icons that are used.
- * @param {string} user_icon_path The icon path for user role.
- * @param {string} trainer_icon_path The icon path for trainer role.
- * @param {string} developer_icon_path The icon path for developer role.
+ * @param {string} user_icon_path The icon path for user.
  * @param {string} shadow_icon_path The shadow for all icons.
- * @returns {{user_icon: IconMarkerBase, trainer_icon: IconMarkerBase, developer_icon: IconMarkerBase}}
+ * @returns {{user_icon: IconMarkerBase}}
  */
-function createAllIcons(user_icon_path, trainer_icon_path, developer_icon_path, shadow_icon_path) {
+function createAllIcons(user_icon_path, shadow_icon_path) {
   var IconMarkerBase = createIconMarkerBase(shadow_icon_path);
   var user_icon = new IconMarkerBase({iconUrl: user_icon_path});
-  var trainer_icon = new IconMarkerBase({iconUrl: trainer_icon_path});
-  var developer_icon = new IconMarkerBase({iconUrl: developer_icon_path});
   var all_icons;
   all_icons = {
-    user_icon: user_icon,
-    trainer_icon: trainer_icon,
-    developer_icon: developer_icon
+    user_icon: user_icon
   };
   return all_icons;
 }

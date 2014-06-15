@@ -14,9 +14,6 @@
  * @const {int} DELETE_USER_MODE The state when user clicks delete user menu btn.
  * @const {int} DOWNLOAD_MODE The state when user clicks download user list btn.
  * @const {int} REMINDER_MODE The state when user clicks reminder button.
- * @const {int} USER_ROLE The number representation for user role.
- * @const {int} TRAINER_ROLE The number representation for trainer role.
- * @const {int} DEVELOPER_ROLE The number representation for developer role.
  */
 var DEFAULT_MODE = 0;
 var ADD_USER_MODE = 1;
@@ -24,14 +21,10 @@ var EDIT_USER_MODE = 2;
 var DELETE_USER_MODE = 3;
 var DOWNLOAD_MODE = 4;
 var REMINDER_MODE = 5;
-var USER_ROLE = 0;
-var TRAINER_ROLE = 1;
-var DEVELOPER_ROLE = 2;
 
 /**
- * Add users to the respective layer based on user_role.
+ * Add users to the respective layer.
  * @param {object} layer The layer that users will be added to.
- * @param {int} user_role The role of users that will be added.
  * @name L The Class from Leaflet.
  * @property geoJson Property of L class.
  * @property users Property of response object.
@@ -40,22 +33,19 @@ var DEVELOPER_ROLE = 2;
  * @property popupContent Property of properties.
  * @function bindPopup Bind popup to marker
  */
-function addUsers(layer, user_role) {
+function addUsers(layer) {
   $.ajax({
     type: 'POST',
     url: '/users.json',
     dataType: 'json',
-    data: {
-      user_role: user_role
-    },
+
     success: function (response) {
-      var role_icon = getUserIcon(user_role);
       L.geoJson(
           response.users,
           {
             onEachFeature: onEachFeature,
             pointToLayer: function (feature, latlng) {
-              return L.marker(latlng, {icon: role_icon });
+              return L.marker(latlng, {icon: user_icon });
             }
           }).addTo(layer);
     }
@@ -69,14 +59,11 @@ function addUsers(layer, user_role) {
 }
 
 /**
- * Refresh user layer based on the role.
- * Each user who has the same role is grouped on the same layer.
- * @param {int} role The role of the users that its layer is wanted to be refreshed.
+ * Refresh user layer.
  */
-function refreshUserLayer(role) {
-  var layer = getUserLayer(role);
-  layer.clearLayers();
-  addUsers(layer, role);
+function refreshUserLayer() {
+  users_layer.clearLayers();
+  addUsers(users_layer);
 }
 
 /**
@@ -95,7 +82,6 @@ function addUser() {
   var name = $name_input.val();
   var email = $email_input.val();
   var website = $website_input.val();
-  var role = $('input:radio[name=role]:checked').val();
 
   var $email_updates_input = $('#email_updates');
   var email_updates;
@@ -117,7 +103,6 @@ function addUser() {
         name: name,
         email: email,
         website: website,
-        role: role,
         email_updates: email_updates,
         latitude: latitude,
         longitude: longitude
@@ -136,14 +121,8 @@ function addUser() {
         } else {
           //Clear marker
           cancelMarker();
-          // Refresh Layer according to role
-          if (role == USER_ROLE.toString()) {
-            refreshUserLayer(USER_ROLE);
-          } else if (role == TRAINER_ROLE.toString()) {
-            refreshUserLayer(TRAINER_ROLE);
-          } else if (role == DEVELOPER_ROLE.toString()) {
-            refreshUserLayer(DEVELOPER_ROLE);
-          }
+          // Refresh Layer
+          refreshUserLayer();
           activateDefaultState(); // Back to default state
           var add_success_title = 'Information';
           var add_success_info =
@@ -186,10 +165,8 @@ function initializeEditedUser(user, popup_content) {
  * @property marker
  */
 function addEditedUser(user, layer, popup_content) {
-  var role_icon = getUserIcon(user['role']);
   edited_user_marker = L.marker(
-      [user['latitude'], user['longitude']],
-      {icon: role_icon }
+      [user['latitude'], user['longitude']], {icon: user_icon }
   );
   edited_user_marker.addTo(layer);
   edited_user_marker.bindPopup(popup_content).openPopup();
@@ -214,7 +191,6 @@ function editUser() {
   var name = name_input.val();
   var email = email_input.val();
   var website = $('#website').val();
-  var role = $('input:radio[name=role]:checked').val();
   var email_updates;
   if ($('#email_updates').is(':checked')) {
     email_updates = 'true';
@@ -234,7 +210,6 @@ function editUser() {
         name: name,
         email: email,
         website: website,
-        role: role,
         email_updates: email_updates,
         latitude: latitude,
         longitude: longitude

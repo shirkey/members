@@ -22,38 +22,6 @@ function showInformationModal(info_title, info_content) {
 }
 
 /**
- * Return user icon based on user role.
- * @param user_role The role.
- */
-function getUserIcon(user_role) {
-  var role_icon;
-  if (user_role == USER_ROLE) {
-    role_icon = user_icon;
-  } else if (user_role == TRAINER_ROLE) {
-    role_icon = trainer_icon;
-  } else if (user_role == DEVELOPER_ROLE) {
-    role_icon = developer_icon;
-  }
-  return role_icon;
-}
-
-/**
- * Get User Layer that has been declared based on the role.
- * @param role The user role.
- */
-function getUserLayer(role) {
-  var layer;
-  if (role == USER_ROLE) {
-    layer = users_layer;
-  } else if (role == TRAINER_ROLE) {
-    layer = trainers_layer;
-  } else if (role == DEVELOPER_ROLE) {
-    layer = developers_layer;
-  }
-  return layer;
-}
-
-/**
  * Return user form based on user attribute.
  * @param user The associative array containing each value of user attribute.
  * @param mode The mode, either ADD_USER_MODE or EDIT_USER_MODE
@@ -82,21 +50,10 @@ function getUserForm(user, mode) {
     $form.find('input[type=email]#email').attr('readonly', true);
     // Set website value
     $form.find('input[type=url]#website').attr('value', user['website']);
-    // Checked one of the radio option of Role
-    if (user['role'] == USER_ROLE) {
-      $form.find('input[type=radio][name=role]:nth(0)').attr('checked', true);
-    } else if (user['role'] == TRAINER_ROLE) {
-      $form.find('input[type=radio][name=role]:nth(1)').attr('checked', true);
-    } else if (user['role'] == DEVELOPER_ROLE) {
-      $form.find('input[type=radio][name=role]:nth(2)').attr('checked', true);
-    }
     // Checked email updates checkbox if the user should get email updates
     if (user['email_updates']) {
       $form.find('input[type=checkbox]#email_updates').attr('checked', true);
     }
-    // Set latitude and longitude value
-    $form.find('input[type=text]#lat').attr('value', user['latitude']);
-    $form.find('input[type=text]#lng').attr('value', user['longitude']);
     // Set onclick attribute on button:
     $form.find(':button#submit_form').attr('onclick', 'editUser();');
     $form.find(':button#cancel_form').attr('onclick', 'cancelEditUser();');
