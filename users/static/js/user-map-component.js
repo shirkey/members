@@ -180,39 +180,6 @@ function createUserMenuControl(options) {
 }
 
 /**
- * Create legend control instance on the bottom right of the map.
- * The legend contains the icon and the name of the role:
- * 1. User
- * 2. Trainer
- * 3. Developer
- *
- * @returns {object} control
- */
-function createLegendControl(){
-  var control;
-  control = L.Control.extend({
-    options: {
-      position: 'bottomright'
-    },
-    onAdd: function () {
-      var legend_container = L.DomUtil.create('div',
-          'info legend');
-      legend_container.innerHTML += $("#legend").html();
-
-      //Prevent firing drag and onClickMap event when clicking this control
-      var stop = L.DomEvent.stopPropagation;
-      L.DomEvent
-          .on(legend_container, 'click', stop)
-          .on(legend_container, 'mousedown', stop)
-          .on(legend_container, 'dblclick', stop)
-          .on(legend_container, 'click', L.DomEvent.preventDefault);
-      return legend_container;
-    }
-  });
-  return control;
-}
-
-/**
  * Listener to geolocation. Called when location is found.
  * NOTE:
  * Bind label to circle/circle marker is not working.

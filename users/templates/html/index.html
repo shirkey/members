@@ -87,14 +87,6 @@
       users_layer.addTo(map);
       developers_layer.addTo(map);
       trainers_layer.addTo(map);
-
-      //Specify all layers on overlays_layers control
-      overlays_layer = {
-        "Users": users_layer,
-        "Developers": developers_layer,
-        "Trainers": trainers_layer
-      }
-      L.control.layers(null, overlays_layer).addTo(map)
     })
   </script>
 {% endblock %} <!--endblock of js_container -->

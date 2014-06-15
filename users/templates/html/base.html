@@ -93,12 +93,7 @@
   };
   user_menu_control = createUserMenuControl(user_menu);
   map.addControl(new user_menu_control);
-  $(".user-menu-control").tooltip({placement: 'right',
-    container: 'body'});
-
-  // Create Legend Control:
-  legend_control = createLegendControl();
-  map.addControl(new legend_control);
+  $(".user-menu-control").tooltip({placement: 'right', container: 'body'});
 </script>
 
 {% block js_container %}
