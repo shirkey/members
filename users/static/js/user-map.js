@@ -233,8 +233,6 @@ function editUser() {
  * @name map Global variable of the map.
  * @property openPopup Method of a popup to open it.
  * @property closePopup Method of a popup to close it.
- * @property fitWorld Method from the L.map.
- * @property zoomIn Method from fitWorld.
  */
 function cancelEditUser() {
   // Set back the marker
@@ -247,8 +245,7 @@ function cancelEditUser() {
   edited_user_marker.bindPopup(edited_user_popup).openPopup();
   // Activate Default State
   activateDefaultState();
-  // Fit map to world extent
-  map.fitWorld().zoomIn();
+  map.setView(new L.LatLng(-3, 120), 5);
 }
 
 /**

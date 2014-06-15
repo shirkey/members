@@ -62,9 +62,10 @@
 
   //Create Map with prepared base_map
   map = L.map('map', {
+    center: [-3, 120],
+    zoom: 5,
     layers: [base_map]
   });
-  map.fitWorld().zoomIn();
 
   // Initialize all icons for marker
   var icons = createAllIcons(
