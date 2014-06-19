@@ -44,22 +44,16 @@ function createIconMarkerBase(shadow_icon_path) {
 
 /**
  * Create all icons that are used.
- * @param {string} user_icon_path The icon path for user role.
- * @param {string} trainer_icon_path The icon path for trainer role.
- * @param {string} developer_icon_path The icon path for developer role.
+ * @param {string} user_icon_path The icon path for user.
  * @param {string} shadow_icon_path The shadow for all icons.
- * @returns {{user_icon: IconMarkerBase, trainer_icon: IconMarkerBase, developer_icon: IconMarkerBase}}
+ * @returns {{user_icon: IconMarkerBase}}
  */
-function createAllIcons(user_icon_path, trainer_icon_path, developer_icon_path, shadow_icon_path) {
+function createAllIcons(user_icon_path, shadow_icon_path) {
   var IconMarkerBase = createIconMarkerBase(shadow_icon_path);
   var user_icon = new IconMarkerBase({iconUrl: user_icon_path});
-  var trainer_icon = new IconMarkerBase({iconUrl: trainer_icon_path});
-  var developer_icon = new IconMarkerBase({iconUrl: developer_icon_path});
   var all_icons;
   all_icons = {
-    user_icon: user_icon,
-    trainer_icon: trainer_icon,
-    developer_icon: developer_icon
+    user_icon: user_icon
   };
   return all_icons;
 }
@@ -174,39 +168,6 @@ function createUserMenuControl(options) {
           .on(user_menu_container, 'dblclick', stop)
           .on(user_menu_container, 'click', L.DomEvent.preventDefault);
       return user_menu_container
-    }
-  });
-  return control;
-}
-
-/**
- * Create legend control instance on the bottom right of the map.
- * The legend contains the icon and the name of the role:
- * 1. User
- * 2. Trainer
- * 3. Developer
- *
- * @returns {object} control
- */
-function createLegendControl(){
-  var control;
-  control = L.Control.extend({
-    options: {
-      position: 'bottomright'
-    },
-    onAdd: function () {
-      var legend_container = L.DomUtil.create('div',
-          'info legend');
-      legend_container.innerHTML += $("#legend").html();
-
-      //Prevent firing drag and onClickMap event when clicking this control
-      var stop = L.DomEvent.stopPropagation;
-      L.DomEvent
-          .on(legend_container, 'click', stop)
-          .on(legend_container, 'mousedown', stop)
-          .on(legend_container, 'dblclick', stop)
-          .on(legend_container, 'click', L.DomEvent.preventDefault);
-      return legend_container;
     }
   });
   return control;

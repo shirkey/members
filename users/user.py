@@ -17,7 +17,6 @@ def add_user(
         website,
         latitude,
         longitude,
-        role=0,
         email_updates=False):
     """Add a user to the database.
 
@@ -35,9 +34,6 @@ def add_user(
 
     :param longitude: longitude of this uer
     :type longitude: float
-
-    :param role: 0 if user , 1 if trainer, 2 if developer
-    :type role: int
 
     :param email_updates: True if user wants email updates about project
         related activities. False if not.
@@ -62,7 +58,6 @@ def add_user(
         name=name,
         email=email,
         website=website,
-        role=role,
         email_updates=email_updates,
         longitude=longitude,
         latitude=latitude
@@ -80,7 +75,6 @@ def edit_user(
         website,
         latitude,
         longitude,
-        role,
         email_updates):
     """Edit a user with given guid with all new attribute value.
 
@@ -102,12 +96,8 @@ def edit_user(
     :param longitude: The new longitude of this uer
     :type longitude: float
 
-    :param role: The new role of this user. 0 if user , 1 if trainer,
-    2 if developer
-    :type role: int
-
     :param email_updates: The new email updates status of user. True if user
-    wants email updates about project related activities. False if not.
+        wants email updates about project related activities. False if not.
     :type email_updates: bool
 
     :returns: Globally unique identifier for the added user.
@@ -128,7 +118,6 @@ def edit_user(
         name=name,
         email=email,
         website=website,
-        role=role,
         email_updates=email_updates,
         longitude=longitude,
         latitude=latitude
@@ -193,41 +182,15 @@ def get_user_by_email(email):
         return users[0]
 
 
-def get_all_users(role=0):
+def get_all_users():
     """Get all users from database.
-
-    :param role: Whether to fetch users, trainers, or developers. Default of
-        0 will fetch users only.
-    :type role: int
 
     :returns: A list of user objects.
     :rtype: list
     """
     conn = get_conn(APP.config['DATABASE'])
 
-    sql = 'SELECT * FROM user WHERE role= %i' % role
+    sql = 'SELECT * FROM user'
 
     all_users = query_db(conn, sql)
     return all_users
-
-
-def get_role_name(role):
-    """Return string of the role name of a role.
-
-    0 = user , 1 = trainer, 2 = developer
-
-    :param role: Role [0, 1, 2]
-    :type role: int
-
-    :returns: User, Trainer, Developer
-    :rtype: str
-    """
-    roles = {
-        0: 'User',
-        1: 'Trainer',
-        2: 'Developer'}
-
-    if role not in roles:
-        raise Exception('Input role is not correct.')
-
-    return roles[role]

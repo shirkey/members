@@ -33,7 +33,6 @@ class AppTestCase(LoggedTestCase):
             name='Akbar',
             email='test@gmail.com',
             website='http://www.ac.com',
-            role=1,
             email_updates='true',
             latitude=12.32,
             longitude=-13.03)
@@ -41,7 +40,6 @@ class AppTestCase(LoggedTestCase):
             name='',
             email='testgmaicom',
             website='http://www.ac.com',
-            role=1,
             email_updates='true',
             latitude=12.32,
             longitude=-13.03)
@@ -49,7 +47,6 @@ class AppTestCase(LoggedTestCase):
             name='Akbar Gumbira',
             email='test@gmail.com',
             website='http://www.ac.com',
-            role=1,
             email_updates='true',
             latitude=12.32,
             longitude=-13.03)
@@ -74,7 +71,7 @@ class AppTestCase(LoggedTestCase):
             try:
                 result = self.app.post(
                     '/users.json',
-                    data=dict(user_role=1),
+                    data=dict(),
                     follow_redirects=True)
                 data = result.__getattribute__('data')
                 self.assertTrue('Akbar' in data)

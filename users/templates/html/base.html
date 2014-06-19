@@ -47,14 +47,12 @@
 {{ user_menu_button | safe }}
 {{ information_modal | safe }}
 {{ data_privacy_content | safe }}
-{{ legend | safe }}
 {{ user_form_template | safe }}
 <!-- endblock of all the template -->
 
 <script type="text/javascript">
   var map, base_map, data_privacy_content, data_privacy_control,
-      user_menu_control, user_icon, trainer_icon, developer_icon,
-      estimated_location_circle, current_mode;
+      user_menu_control, user_icon, estimated_location_circle, current_mode;
 
   // Set current_mode to default one
   current_mode = DEFAULT_MODE;
@@ -64,20 +62,17 @@
 
   //Create Map with prepared base_map
   map = L.map('map', {
+    center: [-3, 120],
+    zoom: 5,
     layers: [base_map]
   });
-  map.fitWorld().zoomIn();
 
   // Initialize all icons for marker
   var icons = createAllIcons(
       '{{ user_icons.user }}',
-      '{{ user_icons.trainer }}',
-      '{{ user_icons.developer }}',
       '{{ user_icons.shadow }}'
   );
   user_icon = icons.user_icon;
-  trainer_icon = icons.trainer_icon;
-  developer_icon = icons.developer_icon;
 
   // Create Data Privacy Control
   data_privacy_control = createDataPrivacyControl();
@@ -93,12 +88,7 @@
   };
   user_menu_control = createUserMenuControl(user_menu);
   map.addControl(new user_menu_control);
-  $(".user-menu-control").tooltip({placement: 'right',
-    container: 'body'});
-
-  // Create Legend Control:
-  legend_control = createLegendControl();
-  map.addControl(new legend_control);
+  $(".user-menu-control").tooltip({placement: 'right', container: 'body'});
 </script>
 
 {% block js_container %}

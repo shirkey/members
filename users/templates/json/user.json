@@ -3,7 +3,6 @@
   "name": "{{ user.name }}",
   "email": "{{ user.email }}",
   "website": "{{ user.website }}",
-  "role": {{ user.role }},
   "email_updates": {{ user.email_updates }},
   "latitude": {{ user.latitude }},
   "longitude": {{ user.longitude }}
