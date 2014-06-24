@@ -35,7 +35,7 @@ class TestDbHandler(TestCase):
         sql = (
             'INSERT INTO user VALUES('
             '1, "feefifofum", "Akbar", "akbarm@gmail.com", "http:www.ac.com",'
-            '"true", "true", "2013-10-16", "75.672197", "-42.187500");')
+            '"true", "2013-10-16", "75.672197", "-42.187500");')
         self.conn.execute(sql)
         self.conn.commit()
         sql = 'SELECT * from user;'
