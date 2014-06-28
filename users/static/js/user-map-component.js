@@ -32,11 +32,11 @@ function createIconMarkerBase(shadow_icon_path) {
   IconMarkerBase = L.Icon.extend({
     options: {
       shadowUrl: shadow_icon_path,
-      iconSize: [19, 32],
-      shadowSize: [42, 35],
-      iconAnchor: [12, 32],
+      iconSize: [20, 20],
+      shadowSize: [28, 28],
+      iconAnchor: [16, 24],
       shadowAnchor: [12, 32],
-      popupAnchor: [-2, -32]
+      popupAnchor: [-5, -28]
     }
   });
   return IconMarkerBase;
