@@ -4,15 +4,15 @@ import os
 
 # PROJECT_NAME: Project Name.
 # It would override page title, email confirmation to user, so on.
-PROJECT_NAME = 'InaSAFE'
+PROJECT_NAME = 'Python Indonesia'
 
 # PUBLIC_URL: Public URL that is used for publishing this apps.
 # It will be used for detail of the email confirmation, and other things if
 # it's needed
-PUBLIC_URL = 'http://users.inasafe.org'
+PUBLIC_URL = 'http://members.python.or.id'
 
 # PROJECT_FAVICON_FILE: Path to project favicon file
-PROJECT_FAVICON_FILE = '/users/static/img/user-icon.png'
+PROJECT_FAVICON_FILE = '/users/static/img/favicon.png'
 
 # PATH TO SQLITE DB
 SQLITE_DB_PATH = os.path.abspath(
@@ -39,6 +39,6 @@ MAIL_ADMIN = ('InaSAFE User Map Administrator', MAIL_CONFIG['MAIL_USERNAME'])
 
 # USER ICONS: All icon paths that are used.
 USER_ICONS = dict(
-    user='/static/img/user-icon.png',
-    shadow='/static/img/shadow-icon.png'
+    user='/static/img/marker.png',
+    shadow='/static/img/marker-shadow.png'
 )
