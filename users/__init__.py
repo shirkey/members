@@ -10,14 +10,6 @@ import logging
 from flask import Flask
 from flask_mail import Mail
 
-from users.config import (
-    PROJECT_NAME,
-    PUBLIC_URL,
-    PROJECT_FAVICON_FILE,
-    MAIL_CONFIG,
-    SQLITE_DB_PATH,
-    USER_ICONS)
-
 
 def add_handler_once(logger, handler):
     """A helper to add a handler to a logger, ensuring there are no duplicates.
@@ -75,16 +67,18 @@ LOGGER = logging.getLogger('user_map')
 
 APP = Flask(__name__)
 
-# Load configuration
-APP.config['PROJECT_NAME'] = PROJECT_NAME
-APP.config['PUBLIC_URL'] = PUBLIC_URL
-APP.config['PROJECT_FAVICON_FILE'] = PROJECT_FAVICON_FILE
-APP.config.update(MAIL_CONFIG)
+# Load configuration from ``users.config``.
+# This will raise ``ImportError`` if such module isn't exist.
+# Simply copy the contents of ``config.py.example`` file,
+# and save it into a file named ``config.py``.
+APP.config.from_object("users.config")
 mail = Mail(APP)
-APP.config['DATABASE'] = SQLITE_DB_PATH
-APP.config['USER_ICONS'] = USER_ICONS
+
+# backward-compat
+APP.config['DATABASE'] = APP.config['SQLITE_DB_PATH']
+
 # Don't import actual view methods themselves - see:
 # http://flask.pocoo.org/docs/patterns/packages/#larger-applications
 # Also views must be imported AFTER app is created above.
 # noinspection PyUnresolvedReferences
-import users.views
+import users.views  # noqa
