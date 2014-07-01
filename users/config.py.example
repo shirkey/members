@@ -23,20 +23,24 @@ SQLITE_DB_PATH = os.path.abspath(
     )
 )
 
-# MAIL SERVER
-MAIL_CONFIG = dict(
-    TESTING=True,
-    MAIL_SERVER='127.0.0.1',
-    MAIL_PORT=25,
-    MAIL_USE_TLS=True,
-    MAIL_USE_SSL=False,
-    MAIL_USERNAME='',
-    MAIL_PASSWORD='',
-    MAIL_SUPPRESS_SEND=True,
-)
+# Alternatively, set to ``127.0.0.1`` for development/testing.
+MAIL_SERVER = 'smtp.gmail.com'
+
+# Alternatively, set to ``25`` for development/testing.
+MAIL_PORT = 587
+
+MAIL_USE_TLS = True
+MAIL_USE_SSL = False
+MAIL_USERNAME = ''
+MAIL_PASSWORD = ''
+
+# Set the value to ``True`` to suppress email sending.
+# Useful for testing/development where machine doesn't have
+# mail server installed in it.
+MAIL_SUPPRESS_SEND = False
 
 # MAIL ADMINISTRATOR
-MAIL_ADMIN = ('InaSAFE User Map Administrator', MAIL_CONFIG['MAIL_USERNAME'])
+MAIL_ADMIN = ('Python Indonesia User Map Administrator', MAIL_USERNAME)
 
 # USER ICONS: All icon paths that are used.
 USER_ICONS = dict(
