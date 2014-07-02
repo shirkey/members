@@ -1,4 +1,10 @@
-#!/bin/bash
-source venv/bin/activate
+#!/usr/bin/env bash
+if [ -f venv/bin/activate ]; then
+    source venv/bin/activate
+fi
+
 nosetests -v --with-id  users
-deactivate
+
+if [ ! -z $(command -v deactivate) ]; then
+    deactivate
+fi

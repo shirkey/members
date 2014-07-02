@@ -1,8 +1,6 @@
 .idea/workspace.xml
 venv
-test_users.db
-users.db
-users/config.py
+*.db
 *.py[cod]
 
 # C extensions

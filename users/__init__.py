@@ -9,6 +9,7 @@ import logging
 
 from flask import Flask
 from flask_mail import Mail
+from flask.ext.appconfig import AppConfig
 
 
 def add_handler_once(logger, handler):
@@ -67,11 +68,25 @@ LOGGER = logging.getLogger('user_map')
 
 APP = Flask(__name__)
 
-# Load configuration from ``users.config``.
-# This will raise ``ImportError`` if such module isn't exist.
-# Simply copy the contents of ``config.py.example`` file,
-# and save it into a file named ``config.py``.
-APP.config.from_object("users.config")
+#: Load configuration from any possible means.
+#: To override default configuration defined in ``users.config``,
+#: simply copy the contents of ``config.py`` file,
+#: and save it into a file.
+#:
+#: .. sourcecode:: sh
+#:
+#:     USERS_CONFIG=/path/to/config.py python runserver
+#:
+#: Another way of doing it is by setting environment variable for each
+#: config item.
+#:
+#: .. sourcecode:: sh
+#:
+#:     USERS_CONFIG=/path/to/config.py USERS_MAIL_SUPPRESS_SEND=True \
+#:         python runserver
+#:
+AppConfig(APP, default_settings="users.config")
+
 mail = Mail(APP)
 
 # backward-compat
