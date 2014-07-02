@@ -6,11 +6,11 @@ User Map
 
 A simple flask application for creating user community maps.
 
-By default, this app reads configuration from `users/config.py`.
+By default, this app reads configuration from `users/default_config.py`.
 To override values set in default config, simply copy the contents
-of `users/config.py` and save it elsewhere.
+of `users/default_config.py` and save it elsewhere.
 
-    cp users/config.py /path/to/custom/config.py
+    cp users/default_config.py /path/to/custom/config.py
 
 Then edit the custom config file, setting appropriate values as needed.
 
