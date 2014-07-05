@@ -68,25 +68,10 @@ LOGGER = logging.getLogger('user_map')
 
 APP = Flask(__name__)
 
-#: Load configuration from any possible means.
-#: To override default configuration defined in ``users.default_config``,
-#: simply copy the contents of ``config.py`` file,
-#: and save it into a file.
-#:
-#: .. sourcecode:: sh
-#:
-#:     USERS_CONFIG=/path/to/config.py python runserver.py
-#:
-#: Another way of doing it is by setting environment variable for each
-#: config item.
-#:
-#: .. sourcecode:: sh
-#:
-#:     USERS_CONFIG=/path/to/config.py USERS_MAIL_SUPPRESS_SEND=True \
-#:         python runserver.py
-#:
+# Load configuration from any possible means.
 AppConfig(APP, default_settings="users.default_config")
 
+# Mailer
 mail = Mail(APP)
 
 # backward-compat
