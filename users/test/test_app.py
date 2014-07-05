@@ -3,32 +3,25 @@
 :copyright: (c) 2013 by Tim Sutton
 :license: GPLv3, see LICENSE for more details.
 """
-import os
+from flask.ext.testing import TestCase as FlaskTestCase
+from flask.ext.migrate import downgrade, upgrade
 
-from users.views import APP
-from users.test.logged_unittest import LoggedTestCase
 from users import LOGGER
-from users.user import add_user, get_user
+from users.views import APP
+from users.database import db
+from users.models import add_user, get_user
 
 
-class AppTestCase(LoggedTestCase):
+class AppTestCase(FlaskTestCase):
     """Test the application."""
+    def create_app(self):
+        app = APP
+        app.config["TESTING"] = True
+        return app
+
     #noinspection PyPep8Naming
     def setUp(self):
         """Constructor."""
-        self.db_path = os.path.abspath(os.path.join(
-            os.path.dirname(__file__),
-            os.pardir,
-            os.pardir,
-            os.pardir,
-            'test_users.db'))
-
-        if os.path.exists(self.db_path):
-            os.remove(self.db_path)
-
-        APP.config['DATABASE'] = self.db_path
-        APP.config['TESTING'] = True
-        self.app = APP.test_client()
         self.correct_user_data = dict(
             name='Akbar',
             email='test@gmail.com',
@@ -51,15 +44,25 @@ class AppTestCase(LoggedTestCase):
             latitude=12.32,
             longitude=-13.03)
 
+    @classmethod
+    def setUpClass(cls):
+        with APP.test_request_context():
+            upgrade(revision="head")
+
     #noinspection PyPep8Naming
     def tearDown(self):
         """Destructor."""
-        pass
+        db.session.remove()
+
+    @classmethod
+    def tearDownClass(cls):
+        with APP.test_request_context():
+            downgrade(revision="base")
 
     def test_home(self):
         """Test the home page works."""
         try:
-            return self.app.post('/', data=dict(), follow_redirects=True)
+            return self.client.post('/', data=dict(), follow_redirects=True)
         except Exception, e:
             LOGGER.exception('Basic front page load failed.')
             raise e
@@ -69,7 +72,7 @@ class AppTestCase(LoggedTestCase):
         guid = add_user(**self.correct_user_data)
         if guid is not None:
             try:
-                result = self.app.post(
+                result = self.client.post(
                     '/users.json',
                     data=dict(),
                     follow_redirects=True)
@@ -83,7 +86,7 @@ class AppTestCase(LoggedTestCase):
         """Test the user added json response works."""
         # Test correct data
         try:
-            result = self.app.post(
+            result = self.client.post(
                 '/add_user',
                 data=self.correct_user_data,
                 follow_redirects=True)
@@ -95,7 +98,7 @@ class AppTestCase(LoggedTestCase):
 
         # Test wrong data
         try:
-            result = self.app.post(
+            result = self.client.post(
                 '/add_user', data=self.wrong_user_data, follow_redirects=True)
             data = result.__getattribute__('data')
             self.assertTrue('Error' in data)
@@ -109,7 +112,7 @@ class AppTestCase(LoggedTestCase):
         guid = add_user(**self.correct_user_data)
         url = '/edit/%s' % guid
         try:
-            return self.app.get(url, data=dict(), follow_redirects=True)
+            return self.client.get(url, data=dict(), follow_redirects=True)
         except Exception, e:
             LOGGER.exception('Basic front page load failed.')
             raise e
@@ -121,11 +124,11 @@ class AppTestCase(LoggedTestCase):
         self.edited_user_data['guid'] = guid
         url = '/edit_user'
         try:
-            result = self.app.post(
+            result = self.client.post(
                 url,
                 data=self.edited_user_data,
                 follow_redirects=True)
-            data = result.__getattribute__('data')
+            data = result.data
             self.assertTrue('Akbar Gumbira' in data)
         except Exception, e:
             LOGGER.exception('Basic front page load failed.')
@@ -137,7 +140,7 @@ class AppTestCase(LoggedTestCase):
         guid = add_user(**self.correct_user_data)
         url = '/delete/%s' % guid
         try:
-            self.app.post(
+            self.client.post(
                 url,
                 data=dict(),
                 follow_redirects=True)
@@ -153,7 +156,7 @@ class AppTestCase(LoggedTestCase):
         """
         url = '/download'
         try:
-            return self.app.get(url, data=dict(), follow_redirects=True)
+            return self.client.get(url, data=dict(), follow_redirects=True)
         except Exception, e:
             LOGGER.exception('Basic front page load failed.')
             raise e
@@ -168,7 +171,7 @@ class AppTestCase(LoggedTestCase):
         if guid is not None:
             email = self.correct_user_data['email']
             try:
-                result = self.app.post(
+                result = self.client.post(
                     url, data=dict(email=email), follow_redirects=True)
                 data = result.__getattribute__('data')
                 self.assertTrue('Success' in data)
@@ -178,7 +181,7 @@ class AppTestCase(LoggedTestCase):
 
         # Test Error
         try:
-            result = self.app.post(
+            result = self.client.post(
                 url,
                 data=dict(
                     email='notok@email.com'),

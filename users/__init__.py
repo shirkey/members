@@ -11,6 +11,8 @@ from flask import Flask
 from flask_mail import Mail
 from flask.ext.appconfig import AppConfig
 
+from users.database import db, migrate
+
 
 def add_handler_once(logger, handler):
     """A helper to add a handler to a logger, ensuring there are no duplicates.
@@ -76,6 +78,11 @@ mail = Mail(APP)
 
 # backward-compat
 APP.config['DATABASE'] = APP.config['SQLITE_DB_PATH']
+
+db.init_app(APP)
+
+migration_dir = os.path.join(os.path.dirname(__file__), "migrations")
+migrate.init_app(APP, db, directory=migration_dir)
 
 # Don't import actual view methods themselves - see:
 # http://flask.pocoo.org/docs/patterns/packages/#larger-applications

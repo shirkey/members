@@ -14,6 +14,10 @@ of `users/default_config.py` and save it elsewhere.
 
 Then edit the custom config file, setting appropriate values as needed.
 
+To install dependencies:
+
+    pip install -r requirements.txt
+
 To run the development server:
 
     USERS_CONFIG=/path/to/custom/config.py python manage.py runserver
@@ -21,7 +25,7 @@ To run the development server:
 Each config item is overridable through environment variable.
 For instance, if you want to suppress email delivery, simply set appropriate value:
 
-    USERS_MAIL_SUPPRESS_SEND=True python manage.py runserver
+    USERS_CONFIG=/path/to/custom/config.py USERS_MAIL_SUPPRESS_SEND=True python manage.py runserver
 
 To run testcases:
 

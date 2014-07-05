@@ -47,3 +47,5 @@ USER_ICONS = dict(
     user='/static/img/marker.png',
     shadow='/static/img/marker-shadow.png'
 )
+
+SQLALCHEMY_DATABASE_URI = "sqlite:////tmp/members.db"

@@ -16,13 +16,15 @@ from users.utilities.validator import (
     is_email_address_valid,
     is_required_valid,
     is_boolean)
-from users.user import (
+from users.models import (
     add_user,
     edit_user,
     delete_user,
     get_user,
     get_user_by_email,
-    get_all_users)
+    get_all_users,
+    )
+
 from users.config import MAIL_ADMIN
 
 
@@ -69,6 +71,7 @@ def users_view():
     """Return a json document of users who have registered."""
     # Create model user
     all_users = get_all_users()
+
     #noinspection PyUnresolvedReferences
     json_users = render_template('json/users.json', users=all_users)
 
@@ -154,10 +157,10 @@ def add_user_view():
         'text/registration_confirmation_email.txt',
         project_name=APP.config['PROJECT_NAME'],
         url=url_for(".map_view", _external=True),
-        edit_url=url_for(".edit_user_view", guid=added_user["guid"],
+        edit_url=url_for(".edit_user_view", guid=added_user.guid,
                          _external=True),
         user=added_user)
-    recipient = added_user['email']
+    recipient = added_user.email
     send_async_mail(
         sender=MAIL_ADMIN,
         recipients=[recipient],
@@ -322,16 +325,14 @@ def download_view():
     :rtype: HttpResponse
     """
     csv_users = "ID|NAME|WEBSITE|LONGITUDE|LATITUDE"
-    i = 0
     users = get_all_users()
-    for user in users:
-        i += 1
+    for i, user in enumerate(users, start=1):
         csv_users += '\n%i|%s|%s|%s|%s' % (
             i,
-            user['name'],
-            user['website'],
-            user['longitude'],
-            user['latitude'])
+            user.name,
+            user.website,
+            user.longitude,
+            user.latitude)
 
     filename = '%s-users.csv' % APP.config['PROJECT_NAME']
     content = "attachment;filename='%s'" % filename
@@ -365,7 +366,7 @@ def reminder_view():
         'text/registration_confirmation_email.txt',
         project_name=APP.config['PROJECT_NAME'],
         url=url_for(".map_view", _external=True),
-        edit_url=url_for(".edit_user_view", guid=user["guid"], _external=True),
+        edit_url=url_for(".edit_user_view", guid=user.guid, _external=True),
         user=user)
     send_async_mail(
         sender=MAIL_ADMIN,
