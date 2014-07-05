@@ -18,6 +18,10 @@ To install dependencies:
 
     pip install -r requirements.txt
 
+Before running the server/testcase, ensure database is up-to-date:
+
+    USERS_CONFIG=/path/to/custom/config.py python manage.py db upgrade
+
 To run the development server:
 
     USERS_CONFIG=/path/to/custom/config.py python manage.py runserver
