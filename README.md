@@ -1,7 +1,7 @@
 User Map
 ========
 
-A simple flask application for creating user community maps.
+A simple application for creating user community maps powered by Flask.
 
 Hacking
 -------
@@ -13,6 +13,10 @@ of `users/default_config.py` and save it elsewhere.
     cp users/default_config.py /path/to/custom/config.py
 
 Then edit the custom config file, setting appropriate values as needed.
+
+Things you might need to override:
+
+* `SQLALCHEMY_DATABASE_URI` — refer to http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html for details
 
 To install dependencies:
 
