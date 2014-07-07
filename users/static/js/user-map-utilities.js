@@ -54,6 +54,10 @@ function getUserForm(user, mode) {
     if (user['email_updates']) {
       $form.find('input[type=checkbox]#email_updates').attr('checked', true);
     }
+
+    // Set twitter
+    $form.find('input[type=text]#twitter').attr('value', user['twitter']);
+
     // Set onclick attribute on button:
     $form.find(':button#submit_form').attr('onclick', 'editUser();');
     $form.find(':button#cancel_form').attr('onclick', 'cancelEditUser();');

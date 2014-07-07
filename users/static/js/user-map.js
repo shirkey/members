@@ -94,6 +94,8 @@ function addUser() {
   var latitude = $('#lat').val();
   var longitude = $('#lng').val();
 
+  var twitter = $("#twitter").val();
+
   var is_client_side_valid = validate_user_form(name, email, website);
   if (is_client_side_valid) {
     $.ajax({
@@ -105,7 +107,8 @@ function addUser() {
         website: website,
         email_updates: email_updates,
         latitude: latitude,
-        longitude: longitude
+        longitude: longitude,
+        twitter: twitter
       },
       success: function (response) {
         if (response.type.toString() == 'Error') {
@@ -200,6 +203,8 @@ function editUser() {
   var latitude = edited_user_marker.getLatLng().lat.toFixed(8);
   var longitude = edited_user_marker.getLatLng().lng.toFixed(8);
 
+  var twitter = $("#twitter").val();
+
   var is_client_side_valid = validate_user_form(name, email, website);
   if (is_client_side_valid) {
     $.ajax({
@@ -212,7 +217,8 @@ function editUser() {
         website: website,
         email_updates: email_updates,
         latitude: latitude,
-        longitude: longitude
+        longitude: longitude,
+        twitter: twitter
       },
       success: function (response) {
         edited_user_layer.clearLayers();

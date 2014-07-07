@@ -107,6 +107,7 @@ def add_user_view():
     email_updates = str(request.form['email_updates'])
     latitude = str(request.form['latitude'])
     longitude = str(request.form['longitude'])
+    twitter = request.form["twitter"]
 
     # Validate the data:
     message = {}
@@ -145,7 +146,9 @@ def add_user_view():
             website=website,
             email_updates=bool(email_updates),
             latitude=float(latitude),
-            longitude=float(longitude))
+            longitude=float(longitude),
+            social_account=dict(twitter=twitter),
+            )
 
     # Prepare json for added user
     added_user = get_user(guid)
@@ -247,6 +250,7 @@ def edit_user_controller():
     email_updates = str(request.form['email_updates'])
     latitude = str(request.form['latitude'])
     longitude = str(request.form['longitude'])
+    twitter = request.form["twitter"]
 
     # Validate the data:
     message = {}
@@ -281,7 +285,9 @@ def edit_user_controller():
             website=website,
             email_updates=bool(email_updates),
             latitude=float(latitude),
-            longitude=float(longitude))
+            longitude=float(longitude),
+            social_account=dict(twitter=twitter),
+            )
 
     edited_user = get_user(guid)
     #noinspection PyUnresolvedReferences
@@ -322,15 +328,17 @@ def download_view():
     :returns: A csv file containing all users
     :rtype: HttpResponse
     """
-    csv_users = "ID|NAME|WEBSITE|LONGITUDE|LATITUDE"
+    csv_users = "ID|NAME|WEBSITE|LONGITUDE|LATITUDE|TWITTER"
     users = get_all_users()
     for i, user in enumerate(users, start=1):
-        csv_users += '\n%i|%s|%s|%s|%s' % (
+        csv_users += '\n%i|%s|%s|%s|%s|%s' % (
             i,
             user.name,
             user.website,
             user.longitude,
-            user.latitude)
+            user.latitude,
+            user.social_account.twitter,
+            )
 
     filename = '%s-users.csv' % APP.config['PROJECT_NAME']
     content = "attachment;filename='%s'" % filename
