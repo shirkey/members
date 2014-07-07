@@ -153,7 +153,7 @@ def add_user_view():
     body = render_template(
         'text/registration_confirmation_email.txt',
         project_name=APP.config['PROJECT_NAME'],
-        url=APP.config['PUBLIC_URL'],
+        url=APP.config["PUBLIC_URL"],
         user=added_user)
     recipient = added_user['email']
     send_async_mail(
@@ -307,7 +307,7 @@ def delete_user_view(guid):
     """
     # Delete User
     delete_user(guid)
-    return APP.config['PUBLIC_URL']
+    return APP.config["PUBLIC_URL"]
 
 
 @APP.route('/download')
@@ -362,7 +362,7 @@ def reminder_view():
     body = render_template(
         'text/registration_confirmation_email.txt',
         project_name=APP.config['PROJECT_NAME'],
-        url=APP.config['PUBLIC_URL'],
+        url=APP.config["PUBLIC_URL"],
         user=user)
     send_async_mail(
         sender=MAIL_ADMIN,

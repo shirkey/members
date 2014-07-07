@@ -6,31 +6,24 @@
   <link rel="shortcut icon" href="{{ project_favicon_file }}">
   <title>{% block title %}{{ project_name | safe }} User Map{% endblock %}</title>
   {% block head_resources %}
-    <link rel="stylesheet" href="/users/static/css/bootstrap.css"
-          type="text/css" static="screen, projection"/>
-    <link rel="stylesheet" href="/users/static/css/leaflet.css"/>
-    <!--[if lte IE 8]>
-             <link rel="stylesheet" href="/users/static/css/leaflet.ie.css" />
-         <![endif]-->
-    <link rel="stylesheet" href="/users/static/css/leaflet.label.css"/>
-    <link rel="stylesheet" href="/users/static/css/user-map.css"
-          type="text/css"/>
-    <script language="javascript"
-            type="text/javascript" src="/users/static/js/jquery.js"></script>
-    <script language="javascript"
-            type="text/javascript" src="/users/static/js/bootstrap.min.js"></script>
-    <script src="/users/static/js/leaflet.js"></script>
-    <script src="/users/static/js/leaflet.label.js"></script>
-    <script language="javascript"
-            type="text/javascript" src="/users/static/js/user-map.js"></script>
-    <script language="javascript"
-            type="text/javascript" src="/users/static/js/user-map-component.js"></script>
-    <script language="javascript"
-            type="text/javascript" src="/users/static/js/user-map-state.js"></script>
-    <script language="javascript"
-            type="text/javascript" src="/users/static/js/user-map-utilities.js"></script>
-    <script language="javascript"
-            type="text/javascript" src="/users/static/js/validate.js"></script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}" type="text/css" static="screen, projection"/>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/leaflet.css') }}"/>
+        <!--[if lte IE 8]>
+            <link rel="stylesheet" href="{{ url_for('static', filename='css/leaflet.ie.css') }}"/>
+        <![endif]-->
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/leaflet.label.css') }}"/>
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/user-map.css') }}" />
+
+        <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='js/jquery.js') }}"></script>
+        <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+        <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='js/leaflet.js') }}"></script>
+        <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='js/leaflet.label.js') }}"></script>
+
+        <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='js/user-map.js') }}"></script>
+        <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='js/user-map-component.js') }}"></script>
+        <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='js/user-map-state.js') }}"></script>
+        <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='js/user-map-utilities.js') }}"></script>
+        <script language="javascript" type="text/javascript" src="{{ url_for('static', filename='js/validate.js') }}"></script>
     {% endblock head_resources %}
 </head>
 <body>
