@@ -9,7 +9,7 @@ from flask.ext.migrate import downgrade, upgrade
 from users import LOGGER
 from users.views import APP
 from users.database import db
-from users.models import add_user, get_user
+from users.models import add_user, get_user  # noqa
 
 
 class AppTestCase(FlaskTestCase):
@@ -28,21 +28,29 @@ class AppTestCase(FlaskTestCase):
             website='http://www.ac.com',
             email_updates='true',
             latitude=12.32,
-            longitude=-13.03)
+            longitude=-13.03,
+            twitter="johndoe",
+            )
+
         self.wrong_user_data = dict(
             name='',
             email='testgmaicom',
             website='http://www.ac.com',
             email_updates='true',
             latitude=12.32,
-            longitude=-13.03)
+            longitude=-13.03,
+            twitter="johndoe",
+            )
+
         self.edited_user_data = dict(
             name='Akbar Gumbira',
             email='test@gmail.com',
             website='http://www.ac.com',
             email_updates='true',
             latitude=12.32,
-            longitude=-13.03)
+            longitude=-13.03,
+            twitter="mrsmith",
+            )
 
     @classmethod
     def setUpClass(cls):
@@ -69,15 +77,18 @@ class AppTestCase(FlaskTestCase):
 
     def test_users_view(self):
         """Test the users json response works."""
-        guid = add_user(**self.correct_user_data)
+        data = self.correct_user_data
+        data["social_account"] = {
+            "twitter": data.pop("twitter", ""),
+        }
+        guid = add_user(**data)
         if guid is not None:
             try:
                 result = self.client.post(
                     '/users.json',
                     data=dict(),
                     follow_redirects=True)
-                data = result.__getattribute__('data')
-                self.assertTrue('Akbar' in data)
+                self.assertTrue('Akbar' in result.data)
             except Exception, e:
                 LOGGER.exception('Basic front page load failed.')
                 raise e
@@ -90,7 +101,7 @@ class AppTestCase(FlaskTestCase):
                 '/add_user',
                 data=self.correct_user_data,
                 follow_redirects=True)
-            data = result.__getattribute__('data')
+            data = result.data
             self.assertTrue('Akbar' in data)
         except Exception, e:
             LOGGER.exception('Page load failed.')
@@ -99,9 +110,11 @@ class AppTestCase(FlaskTestCase):
         # Test wrong data
         try:
             result = self.client.post(
-                '/add_user', data=self.wrong_user_data, follow_redirects=True)
-            data = result.__getattribute__('data')
-            self.assertTrue('Error' in data)
+                '/add_user',
+                data=self.wrong_user_data,
+                follow_redirects=True,
+                )
+            self.assertTrue('Error' in result.data)
         except Exception, e:
             LOGGER.exception('Page load failed.')
             raise e
@@ -109,7 +122,12 @@ class AppTestCase(FlaskTestCase):
     def test_edit_user_view(self):
         """Test the edit_user_view function.
         """
-        guid = add_user(**self.correct_user_data)
+        data = self.wrong_user_data
+        data["social_account"] = {
+            "twitter": data.pop("twitter", ""),
+        }
+
+        guid = add_user(**data)
         url = '/edit/%s' % guid
         try:
             return self.client.get(url, data=dict(), follow_redirects=True)
@@ -120,13 +138,21 @@ class AppTestCase(FlaskTestCase):
     def test_edit_user_controller(self):
         """Test the edit_user_view function.
         """
-        guid = add_user(**self.correct_user_data)
-        self.edited_user_data['guid'] = guid
+        data = self.correct_user_data
+        data["social_account"] = {
+            "twitter": data.pop("twitter", ""),
+        }
+
+        guid = add_user(**data)
+
+        edited_data = self.edited_user_data
+        edited_data['guid'] = guid
+
         url = '/edit_user'
         try:
             result = self.client.post(
                 url,
-                data=self.edited_user_data,
+                data=edited_data,
                 follow_redirects=True)
             data = result.data
             self.assertTrue('Akbar Gumbira' in data)
@@ -137,7 +163,12 @@ class AppTestCase(FlaskTestCase):
     def test_delete_user_view(self):
         """Test the delete_user_view function.
         """
-        guid = add_user(**self.correct_user_data)
+        data = self.correct_user_data
+        data["social_account"] = {
+            "twitter": data.pop("twitter", ""),
+        }
+
+        guid = add_user(**data)
         url = '/delete/%s' % guid
         try:
             self.client.post(
@@ -164,17 +195,21 @@ class AppTestCase(FlaskTestCase):
     def test_reminder_view(self):
         """Test the download_view function.
             """
+        data = self.correct_user_data
+        data["social_account"] = {
+            "twitter": data.pop("twitter", ""),
+        }
+
         url = '/reminder'
 
         # Test OK
-        guid = add_user(**self.correct_user_data)
+        guid = add_user(**data)
         if guid is not None:
-            email = self.correct_user_data['email']
+            email = data['email']
             try:
                 result = self.client.post(
                     url, data=dict(email=email), follow_redirects=True)
-                data = result.__getattribute__('data')
-                self.assertTrue('Success' in data)
+                self.assertTrue('Success' in result.data)
             except Exception, e:
                 LOGGER.exception('Basic front page load failed.')
                 raise e
@@ -186,8 +221,7 @@ class AppTestCase(FlaskTestCase):
                 data=dict(
                     email='notok@email.com'),
                 follow_redirects=True)
-            data = result.__getattribute__('data')
-            self.assertTrue('Error' in data)
+            self.assertTrue('Error' in result.data)
         except Exception, e:
             LOGGER.exception('Basic front page load failed.')
             raise e
