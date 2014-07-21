@@ -1,8 +1,9 @@
-{%- filter safe -%}
-  <span class='glyphicon glyphicon-user'></span> {{ user.name }}<br>
-{%- endfilter -%}
-{%- if user.website != "" -%}
-  {%- filter safe -%}
-    <span class='glyphicon glyphicon-home'></span><a href='{{ user.website }}' target='_blank'> Website</a>
-  {%- endfilter -%}
+<span class='fa fa-user'></span> {{ user.name }}<br>
+{%- if user.website -%}
+<i class='fa fa-home'></i>&nbsp;<a href='{{ user.website }}' target='_blank'>{{ user.website }}</a><br>
+{%- endif -%}
+{%- if user.social_account -%}
+    {%- if user.social_account.twitter -%}
+    <i class='fa fa-twitter'></i>&nbsp;<a href='https://twitter.com/{{ user.social_account.twitter }}' target='_blank'>@{{ user.social_account.twitter }}</a><br>
+    {%- endif -%}
 {%- endif -%}

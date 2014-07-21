@@ -7,6 +7,7 @@
   <title>{% block title %}{{ project_name | safe }} User Map{% endblock %}</title>
   {% block head_resources %}
         <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.css') }}" type="text/css" static="screen, projection"/>
+        <link rel="stylesheet" href="{{ url_for('static', filename='font-awesome-4.1.0/css/font-awesome.min.css') }}" type="text/css" static="screen, projection"/>
         <link rel="stylesheet" href="{{ url_for('static', filename='css/leaflet.css') }}"/>
         <!--[if lte IE 8]>
             <link rel="stylesheet" href="{{ url_for('static', filename='css/leaflet.ie.css') }}"/>

@@ -16,13 +16,15 @@ from users.utilities.validator import (
     is_email_address_valid,
     is_required_valid,
     is_boolean)
-from users.user import (
+from users.models import (
     add_user,
     edit_user,
     delete_user,
     get_user,
     get_user_by_email,
-    get_all_users)
+    get_all_users,
+    )
+
 from users.config import MAIL_ADMIN
 
 
@@ -69,6 +71,7 @@ def users_view():
     """Return a json document of users who have registered."""
     # Create model user
     all_users = get_all_users()
+
     #noinspection PyUnresolvedReferences
     json_users = render_template('json/users.json', users=all_users)
 
@@ -104,6 +107,7 @@ def add_user_view():
     email_updates = str(request.form['email_updates'])
     latitude = str(request.form['latitude'])
     longitude = str(request.form['longitude'])
+    twitter = request.form["twitter"]
 
     # Validate the data:
     message = {}
@@ -142,7 +146,9 @@ def add_user_view():
             website=website,
             email_updates=bool(email_updates),
             latitude=float(latitude),
-            longitude=float(longitude))
+            longitude=float(longitude),
+            social_account=dict(twitter=twitter),
+            )
 
     # Prepare json for added user
     added_user = get_user(guid)
@@ -155,7 +161,7 @@ def add_user_view():
         project_name=APP.config['PROJECT_NAME'],
         url=APP.config["PUBLIC_URL"],
         user=added_user)
-    recipient = added_user['email']
+    recipient = added_user.email
     send_async_mail(
         sender=MAIL_ADMIN,
         recipients=[recipient],
@@ -244,6 +250,7 @@ def edit_user_controller():
     email_updates = str(request.form['email_updates'])
     latitude = str(request.form['latitude'])
     longitude = str(request.form['longitude'])
+    twitter = request.form["twitter"]
 
     # Validate the data:
     message = {}
@@ -278,7 +285,9 @@ def edit_user_controller():
             website=website,
             email_updates=bool(email_updates),
             latitude=float(latitude),
-            longitude=float(longitude))
+            longitude=float(longitude),
+            social_account=dict(twitter=twitter),
+            )
 
     edited_user = get_user(guid)
     #noinspection PyUnresolvedReferences
@@ -319,17 +328,17 @@ def download_view():
     :returns: A csv file containing all users
     :rtype: HttpResponse
     """
-    csv_users = "ID|NAME|WEBSITE|LONGITUDE|LATITUDE"
-    i = 0
+    csv_users = "ID|NAME|WEBSITE|LONGITUDE|LATITUDE|TWITTER"
     users = get_all_users()
-    for user in users:
-        i += 1
-        csv_users += '\n%i|%s|%s|%s|%s' % (
+    for i, user in enumerate(users, start=1):
+        csv_users += '\n%i|%s|%s|%s|%s|%s' % (
             i,
-            user['name'],
-            user['website'],
-            user['longitude'],
-            user['latitude'])
+            user.name,
+            user.website,
+            user.longitude,
+            user.latitude,
+            user.social_account.twitter,
+            )
 
     filename = '%s-users.csv' % APP.config['PROJECT_NAME']
     content = "attachment;filename='%s'" % filename

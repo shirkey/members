@@ -2,39 +2,56 @@
 """Test for user model module."""
 __author__ = 'akbar'
 
-from unittest import TestCase
+# from unittest import TestCase
+from flask.ext.testing import TestCase as FlaskTestCase
+from flask.ext.migrate import downgrade, upgrade
 
-import os
 from users import APP
-from users.user import (add_user,
-                        edit_user,
-                        delete_user,
-                        get_user,
-                        get_user_by_email,
-                        get_all_users)
+from users.database import db
+from users.models import (
+    add_user,
+    edit_user,
+    delete_user,
+    get_user,
+    get_user_by_email,
+    get_all_users,
+    )
 
 
-class TestUser(TestCase):
+class TestUser(FlaskTestCase):
     """Test User Model."""
+
+    def create_app(self):
+        app = APP
+        app.config['TESTING'] = True
+        return app
+
     #noinspection PyPep8Naming
     def setUp(self):
-        """Constructor."""
-        self.db_path = os.path.abspath(os.path.join(
-            os.path.dirname(__file__),
-            os.pardir,
-            os.pardir,
-            os.pardir,
-            'test_users.db'))
-        APP.config['DATABASE'] = self.db_path
-        APP.config['TESTING'] = True
-        self.app = APP.test_client()
         self.user_to_add = dict(
             name='Akbar',
             email='test@gmail.com',
             website='http://www.ac.com',
             email_updates='true',
             latitude=12.32,
-            longitude=-13.03)
+            longitude=-13.03,
+            social_account=dict(twitter="johndoe"),
+            )
+
+    @classmethod
+    def setUpClass(cls):
+        with APP.test_request_context():
+            upgrade(revision="head")
+
+    #noinspection PyPep8Naming
+    def tearDown(self):
+        """Destructor."""
+        db.session.remove()
+
+    @classmethod
+    def tearDownClass(cls):
+        with APP.test_request_context():
+            downgrade(revision="base")
 
     def test_add_user(self):
         """Test for add user function."""
@@ -58,8 +75,8 @@ class TestUser(TestCase):
         user = get_user(guid)
         for key in edited_data:
             if key != 'email_updates':
-                self.assertEqual(edited_data[key], user[key])
-        self.assertEqual(user['email_updates'], 1)
+                self.assertEqual(edited_data[key], getattr(user, key))
+        self.assertEqual(user.email_updates, 1)
 
     def test_delete_user(self):
         """Test for delete user function."""
@@ -76,18 +93,11 @@ class TestUser(TestCase):
         user = get_user(None)
         assert user is None
         user = get_user(guid)
-        self.assertEqual('Akbar', user['name'])
+        self.assertEqual('Akbar', user.name)
 
     def test_get_user_by_email(self):
         """Test for getting user function."""
         guid = add_user(**self.user_to_add)
         self.assertIsNotNone(guid)
         user = get_user_by_email(self.user_to_add['email'])
-        self.assertEqual('Akbar', user['name'])
-
-    def test_get_all_users(self):
-        """Test for retrieving all user function."""
-        users = get_all_users()
-        # Test if all the attribute exist
-        for user in users:
-            self.assertEqual(len(user), 9)
+        self.assertEqual('Akbar', user.name)

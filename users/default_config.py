@@ -47,3 +47,9 @@ USER_ICONS = dict(
     user='/static/img/marker.png',
     shadow='/static/img/marker-shadow.png'
 )
+
+# By default it uses postgres, hence you'll need to ``psycopg2``.
+# If you're using MySQL, refer to
+# http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html
+# for details.
+SQLALCHEMY_DATABASE_URI = "postgresql://scott:tiger@localhost:5432/mydatabase"
