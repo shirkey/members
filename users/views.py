@@ -5,7 +5,7 @@
 """
 import json
 
-from flask import render_template, Response, request
+from flask import render_template, Response, request, current_app
 from werkzeug.exceptions import default_exceptions
 
 # App declared directly in __init__ as per
@@ -24,8 +24,6 @@ from users.models import (
     get_user_by_email,
     get_all_users,
     )
-
-from users.config import MAIL_ADMIN
 
 
 @APP.route('/')
@@ -163,7 +161,7 @@ def add_user_view():
         user=added_user)
     recipient = added_user.email
     send_async_mail(
-        sender=MAIL_ADMIN,
+        sender=current_app.config["MAIL_ADMIN"],
         recipients=[recipient],
         subject=subject,
         text_body=body,
@@ -374,7 +372,7 @@ def reminder_view():
         url=APP.config["PUBLIC_URL"],
         user=user)
     send_async_mail(
-        sender=MAIL_ADMIN,
+        sender=current_app.config["MAIL_ADMIN"],
         recipients=[email],
         subject=subject,
         text_body=body, html_body='')
