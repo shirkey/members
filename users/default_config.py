@@ -12,7 +12,7 @@ PROJECT_NAME = 'Python Indonesia'
 PUBLIC_URL = 'http://members.python.or.id'
 
 # PROJECT_FAVICON_FILE: Path to project favicon file
-PROJECT_FAVICON_FILE = '/users/static/img/favicon.png'
+PROJECT_FAVICON_FILE = '/static/img/favicon.png'
 
 # PATH TO SQLITE DB
 SQLITE_DB_PATH = os.path.abspath(
