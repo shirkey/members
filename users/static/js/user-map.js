@@ -337,18 +337,21 @@ function validate_user_form(str_name, str_email, str_website) {
   is_all_valid = is_name_valid && is_email_valid && is_website_valid;
   if (!is_name_valid) {
     var $name_input = $('#name');
+    var $name_err = $('#name-error');
     $name_input.parent().addClass('has-error');
-    $name_input.attr('placeholder', 'Name is required');
+    $name_err.text('Name is required');
   }
   if (!is_email_valid) {
     var $email_input = $('#email');
+    var $email_err = $('#email-error');
     $email_input.parent().addClass('has-error');
-    $email_input.attr('placeholder', 'Email is required and needs to be valid email');
+    $email_err.text('Email is required and needs to be valid email');
   }
   if (!is_website_valid) {
     var $website_input =$("#website");
+    var $website_err =$("#website-error");
     $website_input.parent().addClass('has-error');
-    $website_input.attr('placeholder', 'Website needs to be a valid URL');
+    $website_err.text('Website needs to be a valid URL');
   }
   return is_all_valid;
 }
