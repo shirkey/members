@@ -64,7 +64,7 @@ def map_view():
     return render_template('html/index.html', **context)
 
 
-@APP.route('/users.json', methods=['GET', 'POST'])
+@APP.route('/users.json', methods=['GET'])
 def users_view():
     """Return a json document of users who have registered."""
     # Create model user
