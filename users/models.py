@@ -15,7 +15,7 @@ class User(db.Model):
     website = db.Column(db.String(255), default="")
     email_updates = db.Column(db.Boolean(name="email_updates"),
                               default=False)
-    date_added = db.Column(db.DateTime,
+    date_added = db.Column(db.TIMESTAMP,
                            server_default=db.text("CURRENT_TIMESTAMP"))
     latitude = db.Column(db.Float)
     longitude = db.Column(db.Float)

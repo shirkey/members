@@ -23,8 +23,8 @@ def upgrade():
         sa.Column("website", sa.String(255), default=""),
         sa.Column("email_updates", sa.Boolean(name="email_updates"),
                   default=False),
-        sa.Column("date_added", sa.DateTime,
-                  server_default=sa.text("CURRENT_TIMESTAMP")),
+        sa.Column("date_added", sa.TIMESTAMP,
+                  server_default=sa.func.now()),
         sa.Column("latitude", sa.Float),
         sa.Column("longitude", sa.Float),
         )
