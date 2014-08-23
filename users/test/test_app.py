@@ -3,23 +3,24 @@
 :copyright: (c) 2013 by Tim Sutton
 :license: GPLv3, see LICENSE for more details.
 """
-from flask.ext.testing import TestCase as FlaskTestCase
-from flask.ext.migrate import downgrade, upgrade
+from flask_testing import TestCase
+from flask_migrate import downgrade, upgrade
 
 from users import LOGGER
 from users.views import APP
 from users.database import db
-from users.models import add_user, get_user  # noqa
+from users.models import add_user, get_user
 
 
-class AppTestCase(FlaskTestCase):
+class AppTestCase(TestCase):
     """Test the application."""
+
     def create_app(self):
+        """Instantiate the Flask app"""
         app = APP
         app.config["TESTING"] = True
         return app
 
-    #noinspection PyPep8Naming
     def setUp(self):
         """Constructor."""
         self.correct_user_data = dict(
@@ -30,7 +31,7 @@ class AppTestCase(FlaskTestCase):
             latitude=12.32,
             longitude=-13.03,
             twitter="johndoe",
-            )
+        )
 
         self.wrong_user_data = dict(
             name='',
@@ -40,7 +41,7 @@ class AppTestCase(FlaskTestCase):
             latitude=12.32,
             longitude=-13.03,
             twitter="johndoe",
-            )
+        )
 
         self.edited_user_data = dict(
             name='Akbar Gumbira',
@@ -50,14 +51,13 @@ class AppTestCase(FlaskTestCase):
             latitude=12.32,
             longitude=-13.03,
             twitter="mrsmith",
-            )
+        )
 
     @classmethod
     def setUpClass(cls):
         with APP.test_request_context():
             upgrade(revision="head")
 
-    #noinspection PyPep8Naming
     def tearDown(self):
         """Destructor."""
         db.session.remove()
@@ -113,7 +113,7 @@ class AppTestCase(FlaskTestCase):
                 '/add_user',
                 data=self.wrong_user_data,
                 follow_redirects=True,
-                )
+            )
             self.assertTrue('Error' in result.data)
         except Exception, e:
             LOGGER.exception('Page load failed.')
@@ -183,8 +183,7 @@ class AppTestCase(FlaskTestCase):
             raise e
 
     def test_download_view(self):
-        """Test the download_view function.
-        """
+        """Test the download_view function."""
         url = '/download'
         try:
             return self.client.get(url, data=dict(), follow_redirects=True)
@@ -193,8 +192,7 @@ class AppTestCase(FlaskTestCase):
             raise e
 
     def test_reminder_view(self):
-        """Test the download_view function.
-            """
+        """Test the download_view function."""
         data = self.correct_user_data
         data["social_account"] = {
             "twitter": data.pop("twitter", ""),
