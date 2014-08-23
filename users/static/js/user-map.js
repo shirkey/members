@@ -35,6 +35,7 @@ var REMINDER_MODE = 5;
  */
 function addUsers(layer) {
   $.ajax({
+    type: 'GET',
     url: '/users.json',
     dataType: 'json',
 
