@@ -14,6 +14,11 @@ from flask.ext.appconfig import AppConfig
 from users.database import db, migrate
 
 
+APP = Flask(__name__)
+# Load configuration from any possible means.
+AppConfig(APP, default_settings="users.default_config")
+
+
 def add_handler_once(logger, handler):
     """A helper to add a handler to a logger, ensuring there are no duplicates.
 
@@ -68,10 +73,6 @@ def setup_logger():
 setup_logger()
 LOGGER = logging.getLogger('user_map')
 
-APP = Flask(__name__)
-
-# Load configuration from any possible means.
-AppConfig(APP, default_settings="users.default_config")
 
 # Mailer
 mail = Mail(APP)
