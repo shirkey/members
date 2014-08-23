@@ -32,7 +32,7 @@ class TestUser(FlaskTestCase):
             name='Akbar',
             email='test@gmail.com',
             website='http://www.ac.com',
-            email_updates='true',
+            email_updates=True,
             latitude=12.32,
             longitude=-13.03,
             social_account=dict(twitter="johndoe"),
@@ -68,7 +68,7 @@ class TestUser(FlaskTestCase):
             name='Akbar Gumbira',
             email='gumbira@gmail.com',
             website='http://www.akbargumbira.com',
-            email_updates='true',
+            email_updates=True,
             latitude=-6.32,
             longitude=102.03)
         guid = edit_user(guid, **edited_data)
