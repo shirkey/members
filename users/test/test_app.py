@@ -67,13 +67,10 @@ class AppTestCase(TestCase):
         with APP.test_request_context():
             downgrade(revision="base")
 
-    def test_home(self):
-        """Test the home page works."""
-        try:
-            return self.client.post('/', data=dict(), follow_redirects=True)
-        except Exception, e:
-            LOGGER.exception('Basic front page load failed.')
-            raise e
+    def test_home_page(self):
+        """GET '/'"""
+        response = self.client.get('/', data=dict(), follow_redirects=True)
+        self.assert200(response, message="Home page failed.")
 
     def test_users_view(self):
         """Test the users json response works."""
