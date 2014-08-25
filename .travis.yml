@@ -3,13 +3,14 @@ python:
     - "2.7"
 addons:
     postgresql: "9.3"
+env:
+    - USERS_CONFIG=./users/test/test_config.py
 install: 
     - "pip install -r requirements.txt"
     - "pip install -r users/test/requirements.txt"
 before_script:
     - psql -c 'create database memberdb;' -U postgresql
 script:
-    - "export USERS_CONFIG=./users/test/test_config.py"
     - "nosetests -v --with-id --with-xcoverage --with-xunit --verbose --cover-package=users users"
     - "pylint --output-format=parseable --reports=y --rcfile=pylintrc users"
     - "pep8 --repeat --ignore W391 --exclude venv,none.py users"
