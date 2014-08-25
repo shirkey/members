@@ -23,13 +23,13 @@ from users.models import (
     get_user,
     get_user_by_email,
     get_all_users,
-    )
+)
 
 
 @APP.route('/')
 def map_view():
     """Default view - shows a map with users."""
-    #noinspection PyUnresolvedReferences
+    # noinspection PyUnresolvedReferences
     information_modal = render_template('html/information_modal.html')
     #noinspection PyUnresolvedReferences
     data_privacy_content = render_template('html/data_privacy.html')
@@ -70,7 +70,7 @@ def users_view():
     # Create model user
     all_users = get_all_users()
 
-    #noinspection PyUnresolvedReferences
+    # noinspection PyUnresolvedReferences
     json_users = render_template('json/users.json', users=all_users)
 
     users_json = (
@@ -121,12 +121,15 @@ def add_user_view():
     # Check if the email has been registered by other user:
     user = get_user_by_email(email)
     if user is not None:
+        # ref https://stackoverflow.com/questions/3290182/rest-http-status-codes
+        message['status'] = '409'
         message['email'] = 'Email has been registered by other user.'
+
 
     # Process data
     if len(message) != 0:
         message['type'] = 'Error'
-        return Response(json.dumps(message), mimetype='application/json')
+        return Response(json.dumps(message), mimetype='application/json', status=(message['status'] or 400))
     else:
         # Modify the data:
         if email_updates == 'true':
@@ -146,14 +149,14 @@ def add_user_view():
             latitude=float(latitude),
             longitude=float(longitude),
             social_account=dict(twitter=twitter),
-            )
+        )
 
     # Prepare json for added user
     added_user = get_user(guid)
 
     # Send Email Confirmation:
     subject = '%s User Map Registration' % APP.config['PROJECT_NAME']
-    #noinspection PyUnresolvedReferences
+    # noinspection PyUnresolvedReferences
     body = render_template(
         'text/registration_confirmation_email.txt',
         project_name=APP.config['PROJECT_NAME'],
@@ -184,7 +187,7 @@ def edit_user_view(guid):
     :rtype: HttpResponse
     """
     user = get_user(guid)
-    #noinspection PyUnresolvedReferences
+    # noinspection PyUnresolvedReferences
     user_json = render_template('json/user.json', user=user)
     #noinspection PyUnresolvedReferences
     user_popup_content = render_template(
@@ -285,10 +288,10 @@ def edit_user_controller():
             latitude=float(latitude),
             longitude=float(longitude),
             social_account=dict(twitter=twitter),
-            )
+        )
 
     edited_user = get_user(guid)
-    #noinspection PyUnresolvedReferences
+    # noinspection PyUnresolvedReferences
     edited_user_json = render_template('json/user.json', user=edited_user)
     #noinspection PyUnresolvedReferences
     edited_user_popup_content = render_template(
@@ -336,7 +339,7 @@ def download_view():
             user.longitude,
             user.latitude,
             user.social_account.twitter,
-            )
+        )
 
     filename = '%s-users.csv' % APP.config['PROJECT_NAME']
     content = "attachment;filename='%s'" % filename
@@ -365,7 +368,7 @@ def reminder_view():
 
     # Send Email Confirmation:
     subject = '%s - User Map Edit Link' % APP.config['PROJECT_NAME']
-    #noinspection PyUnresolvedReferences
+    # noinspection PyUnresolvedReferences
     body = render_template(
         'text/registration_confirmation_email.txt',
         project_name=APP.config['PROJECT_NAME'],
