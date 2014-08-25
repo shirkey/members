@@ -4,7 +4,7 @@ python:
 addons:
     postgresql: "9.3"
 env:
-    - USERS_CONFIG=./users/test/test_config.py
+    - USERS_CONFIG=test/test_config.py
 install: 
     - "pip install -r requirements.txt"
     - "pip install -r users/test/requirements.txt"
