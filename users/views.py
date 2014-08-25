@@ -31,7 +31,7 @@ def map_view():
     """Default view - shows a map with users."""
     # noinspection PyUnresolvedReferences
     information_modal = render_template('html/information_modal.html')
-    #noinspection PyUnresolvedReferences
+    # noinspection PyUnresolvedReferences
     data_privacy_content = render_template('html/data_privacy.html')
     #noinspection PyUnresolvedReferences
     user_form_template = render_template('html/user_form.html')
@@ -121,15 +121,16 @@ def add_user_view():
     # Check if the email has been registered by other user:
     user = get_user_by_email(email)
     if user is not None:
-        # ref https://stackoverflow.com/questions/3290182/rest-http-status-codes
         message['status'] = '409'
         message['email'] = 'Email has been registered by other user.'
 
-
     # Process data
     if len(message) != 0:
+        http_status_bad_data = 400  # ref https://stackoverflow.com/questions/3290182/rest-http-status-codes
         message['type'] = 'Error'
-        return Response(json.dumps(message), mimetype='application/json', status=(message['status'] or 400))
+        return Response(
+            json.dumps(message), mimetype='application/json',
+            status=(message.get('status') or http_status_bad_data))
     else:
         # Modify the data:
         if email_updates == 'true':
@@ -170,7 +171,7 @@ def add_user_view():
         text_body=body,
         html_body='')
 
-    #noinspection PyUnresolvedReferences
+    # noinspection PyUnresolvedReferences
     added_user_json = render_template('json/users.json', users=[added_user])
     # Return Response
     return Response(added_user_json, mimetype='application/json')
@@ -189,7 +190,7 @@ def edit_user_view(guid):
     user = get_user(guid)
     # noinspection PyUnresolvedReferences
     user_json = render_template('json/user.json', user=user)
-    #noinspection PyUnresolvedReferences
+    # noinspection PyUnresolvedReferences
     user_popup_content = render_template(
         'html/user_info_popup_content.html', user=user
     )
@@ -293,7 +294,7 @@ def edit_user_controller():
     edited_user = get_user(guid)
     # noinspection PyUnresolvedReferences
     edited_user_json = render_template('json/user.json', user=edited_user)
-    #noinspection PyUnresolvedReferences
+    # noinspection PyUnresolvedReferences
     edited_user_popup_content = render_template(
         'html/user_info_popup_content.html', user=edited_user
     )
