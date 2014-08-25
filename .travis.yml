@@ -3,8 +3,8 @@ python:
     - "2.7"
 install: 
     - "pip install -r requirements.txt"
-    - "pip install pep8 pylint nose nosexcover"
+    - "pip install -r users/test/requirements.txt"
 script:
     - "nosetests -v --with-id --with-xcoverage --with-xunit --verbose --cover-package=users users"
     - "pylint --output-format=parseable --reports=y --rcfile=pylintrc users"
-    - "pep8 --repeat --ignore W391 --exclude venv,none.py users > pep8.log"
+    - "pep8 --repeat --ignore W391 --exclude venv,none.py users"
