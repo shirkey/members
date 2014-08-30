@@ -3,11 +3,14 @@
 :copyright: (c) 2013 by Tim Sutton
 :license: GPLv3, see LICENSE for more details.
 """
+import os
+import json
+
 from flask_testing import TestCase
 from flask_migrate import downgrade, upgrade
 
 from users import LOGGER
-from users.views import APP
+from users.views import APP as app
 from users.database import db
 from users.models import add_user, get_user
 
@@ -15,14 +18,27 @@ from users.models import add_user, get_user
 class AppTestCase(TestCase):
     """Test the application."""
 
+    @classmethod
+    def setUpClass(cls):
+        """
+        Run migrations
+        """
+        with app.test_request_context():
+            upgrade(revision="head")
+
+    @classmethod
+    def tearDownClass(cls):
+        with app.test_request_context():
+            downgrade(revision="base")
+
     def create_app(self):
-        """Instantiate the Flask app"""
-        app = APP
-        app.config["TESTING"] = True
+        """Passthrough app instance"""
         return app
 
     def setUp(self):
-        """Constructor."""
+        """unittest setup"""
+        app.config.from_pyfile(os.path.join(app.root_path, 'test/test_config.py'))
+        self.client = app.test_client()
         self.correct_user_data = dict(
             name='Akbar',
             email='test@gmail.com',
@@ -30,7 +46,9 @@ class AppTestCase(TestCase):
             email_updates=True,
             latitude=12.32,
             longitude=-13.03,
-            twitter="johndoe",
+            social_account=dict(
+                twitter="johndoe"
+            ),
         )
 
         self.wrong_user_data = dict(
@@ -40,7 +58,9 @@ class AppTestCase(TestCase):
             email_updates=True,
             latitude=12.32,
             longitude=-13.03,
-            twitter="johndoe",
+            social_account=dict(
+                twitter="johndoe",
+            )
         )
 
         self.edited_user_data = dict(
@@ -50,29 +70,41 @@ class AppTestCase(TestCase):
             email_updates=True,
             latitude=12.32,
             longitude=-13.03,
-            twitter="mrsmith",
+            social_account=dict(
+                twitter="mrsmith",
+            )
         )
-
-    @classmethod
-    def setUpClass(cls):
-        with APP.test_request_context():
-            upgrade(revision="head")
 
     def tearDown(self):
         """Destructor."""
         db.session.remove()
 
-    @classmethod
-    def tearDownClass(cls):
-        with APP.test_request_context():
-            downgrade(revision="base")
+    def test_url_root_get(self):
+        """GET /"""
+        result = self.client.get('/', follow_redirects=True)
+        self.assert200(result, message="URL / GET failed.")
 
-    def test_home_page(self):
-        """GET '/'"""
-        response = self.client.get('/', data=dict(), follow_redirects=True)
-        self.assert200(response, message="Home page failed.")
+    def test_url_root_post(self):
+        """POST /"""
+        result = self.client.post('/', data=dict(), follow_redirects=True)
+        self.assert405(result, message="URL / POST should not be allowed.")
 
-    def test_users_view(self):
+    def test_url_users_data_get(self):
+        """GET /users.json"""
+        result = self.client.get(
+            '/users.json',
+            follow_redirects=True)
+        self.assert200(result, message="URL /users.json GET failed.")
+
+    def test_url_users_data_get(self):
+        """POST /users.json"""
+        result = self.client.get(
+            '/users.json',
+            data=dict(),
+            follow_redirects=True)
+        self.assert200(result, message="URL /users.json POST failed.")
+
+    def test_users_data_correct(self):
         """Test the users json response works."""
         data = self.correct_user_data
         data["social_account"] = {
@@ -80,91 +112,89 @@ class AppTestCase(TestCase):
         }
         guid = add_user(**data)
         if guid is not None:
-            try:
-                result = self.client.post(
-                    '/users.json',
-                    data=dict(),
-                    follow_redirects=True)
-                self.assertTrue('Akbar' in result.data)
-            except Exception, e:
-                LOGGER.exception('Basic front page load failed.')
-                raise e
-
-    def test_add_user_view(self):
-        """Test the user added json response works."""
-        # Test correct data
-        try:
             result = self.client.post(
-                '/add_user',
-                data=self.correct_user_data,
+                '/users.json',
                 follow_redirects=True)
-            data = result.data
-            self.assertTrue('Akbar' in data)
-        except Exception, e:
-            LOGGER.exception('Page load failed.')
-            raise e
+            self.assertIn(self.correct_user_data['name'], result.data, 'Correct data not found')
 
-        # Test wrong data
-        try:
-            result = self.client.post(
-                '/add_user',
-                data=self.wrong_user_data,
-                follow_redirects=True,
-            )
-            self.assertTrue('Error' in result.data)
-        except Exception, e:
-            LOGGER.exception('Page load failed.')
-            raise e
+    def test_add_user_duplicate(self):
+        url = '/add_user'
+        user_data = {
+            'name': 'Bounce_Effect_Bob',
+            'email': 'noduplicates@gmail.com',
+            'website': 'http://www.noduplicates.com',
+            'email_updates': True,
+            'latitude': 12.32,
+            'longitude': -13.03,
+            'twitter': 'bouncing'
+        }
+        result = self.client.post(
+            url,
+            data=user_data,
+            follow_redirects=True)
+        self.assertEquals(result.status_code, 200, 'Expected HTTP status code 200/OK')
+
+        result = self.client.post(
+            url,
+            data=user_data,
+            follow_redirects=True)
+        self.assertEquals(result.status_code, 409, 'Expected HTTP status code 409/Conflict')
+
+    def test_add_user_success(self):
+        """Test the user added json response works."""
+        url = '/add_user'
+        data = self.correct_user_data
+        result = self.client.post(
+            url,
+            data=data,
+            follow_redirects=True)
+        self.assertStatus(result, 200, 'Expected HTTP status code 200/OK')
+        data = result.json
+        self.assertIn(
+            self.correct_user_data['name'],
+            data,
+            'expected add_user success')
+
+    def test_add_user_error(self):
+        result = self.client.post(
+            '/add_user',
+            data=self.wrong_user_data,
+            follow_redirects=True,
+        )
+        data = result.json
+        self.assertEquals(data['type'], u'Error', "Expected add_user error")
 
     def test_edit_user_view(self):
         """Test the edit_user_view function.
         """
-        data = self.wrong_user_data
-        data["social_account"] = {
-            "twitter": data.pop("twitter", ""),
-        }
-
         guid = add_user(**data)
         url = '/edit/%s' % guid
-        try:
-            return self.client.get(url, data=dict(), follow_redirects=True)
-        except Exception, e:
-            LOGGER.exception('Basic front page load failed.')
-            raise e
+        result = self.client.get(
+            url,
+            data=self.wrong_user_data,
+            follow_redirects=True)
+        data = result.json
+        self.assertEquals(data['name'], 'Akbar Gumbira', "Expected name to change")
 
     def test_edit_user_controller(self):
         """Test the edit_user_view function.
         """
         data = self.correct_user_data
-        data["social_account"] = {
-            "twitter": data.pop("twitter", ""),
-        }
-
         guid = add_user(**data)
-
         edited_data = self.edited_user_data
         edited_data['guid'] = guid
-
         url = '/edit_user'
-        try:
-            result = self.client.post(
-                url,
-                data=edited_data,
-                follow_redirects=True)
-            data = result.data
-            self.assertTrue('Akbar Gumbira' in data)
-        except Exception, e:
-            LOGGER.exception('Basic front page load failed.')
-            raise e
+        result = self.client.post(
+            url,
+            data=edited_data,
+            follow_redirects=True)
+        data = result.json
+        self.assertEquals('Akbar Gumbira', data['name'], 'Expected edit_user success')
 
     def test_delete_user_view(self):
         """Test the delete_user_view function.
         """
         data = self.correct_user_data
-        data["social_account"] = {
-            "twitter": data.pop("twitter", ""),
-        }
-
         guid = add_user(**data)
         url = '/delete/%s' % guid
         try:
@@ -191,10 +221,6 @@ class AppTestCase(TestCase):
     def test_reminder_view(self):
         """Test the download_view function."""
         data = self.correct_user_data
-        data["social_account"] = {
-            "twitter": data.pop("twitter", ""),
-        }
-
         url = '/reminder'
 
         # Test OK

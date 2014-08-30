@@ -2,6 +2,8 @@
 """Module for saving all configuration."""
 import os
 
+TESTING = True
+
 # PROJECT_NAME: Project Name.
 # It would override page title, email confirmation to user, so on.
 PROJECT_NAME = 'Python Indonesia'
@@ -23,21 +25,11 @@ SQLITE_DB_PATH = os.path.abspath(
     )
 )
 
-# Alternatively, set to ``127.0.0.1`` for development/testing.
-MAIL_SERVER = 'smtp.gmail.com'
-
-# Alternatively, set to ``25`` for development/testing.
-MAIL_PORT = 587
-
-MAIL_USE_TLS = True
-MAIL_USE_SSL = False
+MAIL_SERVER = 'localhost'
+MAIL_PORT = 25
 MAIL_USERNAME = ''
 MAIL_PASSWORD = ''
-
-# Set the value to ``True`` to suppress email sending.
-# Useful for testing/development where machine doesn't have
-# mail server installed in it.
-MAIL_SUPPRESS_SEND = False
+MAIL_SUPPRESS_SEND = True
 
 # MAIL ADMINISTRATOR
 MAIL_ADMIN = ('Python Indonesia User Map Administrator', MAIL_USERNAME)
