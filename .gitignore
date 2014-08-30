@@ -1,4 +1,5 @@
 .idea/workspace.xml
+.idea/user_map.iml
 venv
 *.db
 *.py[cod]
