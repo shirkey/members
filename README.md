@@ -1,3 +1,4 @@
+[![Travis build status](https://travis-ci.org/shirkey/members.png?branch=develop)](https://travis-ci.org/shirkey/members)
 User Map
 ========
 
