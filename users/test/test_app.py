@@ -54,38 +54,38 @@ class AppTestCase(TestCase):
         self.client = app.test_client()
         # db.create_all()
         self.correct_user_data = dict(
-            name='Akbar',
-            email='test@gmail.com',
-            website='http://www.ac.com',
+            name=u'Akbar',
+            email=u'test@gmail.com',
+            website=u'http://www.ac.com',
             email_updates=True,
             latitude=12.32,
             longitude=-13.03,
             social_account=dict(
-                twitter="johndoe"
+                twitter=u"johndoe"
             ),
         )
 
         self.wrong_user_data = dict(
             name='',
-            email='testgmaicom',
-            website='http://www.ac.com',
+            email=u'testgmaicom',
+            website=u'http://www.ac.com',
             email_updates=True,
             latitude=12.32,
             longitude=-13.03,
             social_account=dict(
-                twitter="johndoe",
+                twitter=u"johndoe",
             )
         )
 
         self.edited_user_data = dict(
-            name='Akbar Gumbira',
-            email='test@gmail.com',
-            website='http://www.ac.com',
+            name=u'Akbar Gumbira',
+            email=u'test@gmail.com',
+            website=u'http://www.ac.com',
             email_updates=True,
             latitude=12.32,
             longitude=-13.03,
             social_account=dict(
-                twitter="mrsmith",
+                twitter=u"mrsmith",
             )
         )
 
@@ -157,29 +157,26 @@ class AppTestCase(TestCase):
     def test_add_user_success(self):
         """Test the user added json response works."""
         url = '/add_user'
-        data = flatten(self.correct_user_data)
+        data = self.correct_user_data
         result = self.client.post(
             url,
-            data=data,
-            follow_redirects=True)
+            data=flatten(data))
         self.assertEquals(result.status_code, 200, 'Expected HTTP status code 200/OK')
-        data = result.json
-        self.assertIn(
+        self.assertEquals(
             self.correct_user_data['name'],
-            data,
+            result.json['features'][0]['properties']['name'],
             'expected add_user success')
 
-    def test_add_user_error(self):
+    def test_add_user_fail(self):
         url = '/add_user'
-        data = flatten(self.wrong_user_data)
+        data = self.wrong_user_data
         result = self.client.post(
             url,
-            data=data,
+            data=flatten(data),
             follow_redirects=True,
         )
-
         self.assertEquals(result.status_code, 400, 'Expected HTTP status code 400/Bad Request')
-        # self.assertEquals(result.json['type'], u'Error', "Expected add_user error")
+        self.assertEquals(result.json['type'], u'Error', "Expected add_user error")
 
     def test_edit_user_view(self):
         """Test the edit_user_view function.

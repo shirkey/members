@@ -10,11 +10,16 @@ def is_required_valid(req_input):
     :param req_input: input that neeeds to be validated
     :type req_input: str
     """
-    req_input = req_input.strip()
-    if len(req_input) != 0:
-        return True
+    result = False
 
-    return False
+    if isinstance(req_input, basestring):
+        if len(str(req_input).strip()) != 0:
+            result = True
+    if isinstance(req_input, (int, long, float, complex)):
+        if req_input != 0:
+            result = True
+    return result
+
 
 
 def is_email_address_valid(email):

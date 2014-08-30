@@ -44,6 +44,20 @@ def on_user_loaded(target, context):
     target.email_updates = 0 if not target.email_updates else 1
 
 
+"""
+def add_user(user_data):
+
+    add_user(
+        name=user_data.get('name'),
+        email=user_data.get('email'),
+        website=user_data.get('website'),
+        longitude=user_data.get('longitude'),
+        latitude=user_data.get('latitude'),
+        email_updates=user_data.get('email_updates'),
+        social_account=user_data.get('social_account')
+    )
+"""
+
 def add_user(name, email, website, latitude, longitude,
              email_updates=False, social_account=None):
     social_account = social_account or {}
@@ -52,15 +66,15 @@ def add_user(name, email, website, latitude, longitude,
     user.name = name
     user.email = email
     user.website = website
-    user.latitude = latitude
-    user.longitude = longitude
-    user.email_updates = email_updates
+    user.latitude = float(latitude)
+    user.longitude = float(longitude)
+    user.email_updates = bool(email_updates)
 
     models = [user]
 
     if social_account:
         account = SocialAccount()
-        account.twitter = social_account["twitter"]
+        account.twitter = social_account.get("twitter", '')
         user.social_account = account
         models.append(account)
 

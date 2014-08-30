@@ -33,7 +33,7 @@ def map_view():
     information_modal = render_template('html/information_modal.html')
     # noinspection PyUnresolvedReferences
     data_privacy_content = render_template('html/data_privacy.html')
-    #noinspection PyUnresolvedReferences
+    # noinspection PyUnresolvedReferences
     user_form_template = render_template('html/user_form.html')
     user_menu = dict(
         add_user=True,
@@ -94,32 +94,55 @@ def add_user_view():
     .. note:: JavaScript on client must update the map on ajax completion
         callback.
     """
+    USER_FIELDS = ['name', 'email', 'latitude', 'longitude', 'website']
+    REQUIRED_USER_FIELDS = ['name', 'email', 'latitude', 'longitude']
+    SOCIAL_ACCOUNT_TYPES = ['twitter']
+
+    message = dict()
+
     # return any errors as json - see http://flask.pocoo.org/snippets/83/
     for code in default_exceptions.iterkeys():
         APP.error_handler_spec[None][code] = make_json_error
 
-    # Get data from form
-    name = str(request.form['name']).strip()
-    email = str(request.form['email']).strip()
-    website = str(request.form['website'])
-    email_updates = str(request.form['email_updates'])
-    latitude = str(request.form['latitude'])
-    longitude = str(request.form['longitude'])
-    twitter = request.form["twitter"]
+    # Copy request data
+    if request.form is not None:
+        req = request.form.copy()
+    else:
+        req = request.get_json().copy()
 
-    # Validate the data:
-    message = {}
-    if not is_required_valid(name):
-        message['name'] = 'Name is required'
-    if not is_email_address_valid(email):
+    data = dict()
+
+    # Parse data
+    for val in USER_FIELDS:
+        data[val] = str(req.get(val, '')).strip()
+
+    if 'http://' not in req['website']:
+        data['website'] = 'http://%s' % req['website']
+    data['email_updates'] = True if req['email_updates'].lower() == 'true' else False
+
+    for float_val in ['longitude', 'latitude']:
+        try:
+            data[float_val] = float(data[float_val])
+        except ValueError:
+            print "%s must be a number" % float_val
+
+    social_account_data = data['social_account'] = dict()
+    for sa in SOCIAL_ACCOUNT_TYPES:
+        social_account_data[sa] = str(req.get(sa, '')).strip() or str(req.get('social_account_%s' % sa, '')).strip()
+        # data.pop('social_account_%s' % sa)
+
+    # Validate data
+
+    for field in REQUIRED_USER_FIELDS:
+        if not is_required_valid(data[field]):
+            message[field] = '%s is a required field' % field
+    if not is_email_address_valid(data['email']):
         message['email'] = 'Email address is not valid'
-    if not is_required_valid(email):
-        message['email'] = 'Email is required'
-    elif not is_boolean(email_updates):
+    if not data['email_updates']:
         message['email_updates'] = 'Notification must be checked'
 
-    # Check if the email has been registered by other user:
-    user = get_user_by_email(email)
+    # Check if the email has been registered by other user
+    user = get_user_by_email(data['email'])
     if user is not None:
         message['status'] = '409'
         message['email'] = 'Email has been registered by other user.'
@@ -132,49 +155,32 @@ def add_user_view():
             json.dumps(message), mimetype='application/json',
             status=(message.get('status') or http_status_bad_data))
     else:
-        # Modify the data:
-        if email_updates == 'true':
-            email_updates = True
-        else:
-            email_updates = False
+        # Create new User
+        guid = add_user(**data)
 
-        if len(website.strip()) != 0 and 'http' not in website:
-            website = 'http://%s' % website
+        # Prepare json for added user
+        added_user = get_user(guid)
 
-        # Create model for user and add user
-        guid = add_user(
-            name=name,
-            email=email,
-            website=website,
-            email_updates=bool(email_updates),
-            latitude=float(latitude),
-            longitude=float(longitude),
-            social_account=dict(twitter=twitter),
-        )
+        # Send Email Confirmation
+        if not APP.config['TESTING']:  # added because mailer seems to fire even when flag is set
+            subject = '%s Member Registration' % APP.config['PROJECT_NAME']
+            body = render_template(
+                'text/registration_confirmation_email.txt',
+                project_name=APP.config['PROJECT_NAME'],
+                url=APP.config["PUBLIC_URL"],
+                user=added_user)
+            recipient = added_user.email
+            send_async_mail(
+                sender=current_app.config["MAIL_ADMIN"],
+                recipients=[recipient],
+                subject=subject,
+                text_body=body,
+                html_body='')
 
-    # Prepare json for added user
-    added_user = get_user(guid)
+        added_user_json = render_template('json/users.json', users=[added_user])
+        # Return Response
 
-    # Send Email Confirmation:
-    subject = '%s User Map Registration' % APP.config['PROJECT_NAME']
-    # noinspection PyUnresolvedReferences
-    body = render_template(
-        'text/registration_confirmation_email.txt',
-        project_name=APP.config['PROJECT_NAME'],
-        url=APP.config["PUBLIC_URL"],
-        user=added_user)
-    recipient = added_user.email
-    send_async_mail(
-        sender=current_app.config["MAIL_ADMIN"],
-        recipients=[recipient],
-        subject=subject,
-        text_body=body,
-        html_body='')
-
-    # noinspection PyUnresolvedReferences
-    added_user_json = render_template('json/users.json', users=[added_user])
-    # Return Response
-    return Response(added_user_json, mimetype='application/json')
+        return Response(added_user_json, mimetype='application/json')
 
 
 @APP.route('/edit/<guid>')
@@ -194,7 +200,7 @@ def edit_user_view(guid):
     user_popup_content = render_template(
         'html/user_info_popup_content.html', user=user
     )
-    #noinspection PyUnresolvedReferences
+    # noinspection PyUnresolvedReferences
     information_modal = render_template('html/information_modal.html')
     #noinspection PyUnresolvedReferences
     data_privacy_content = render_template('html/data_privacy.html')

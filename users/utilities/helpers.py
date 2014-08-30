@@ -43,6 +43,7 @@ def send_mail(sender, recipients, subject, text_body, html_body):
     message.body = text_body
     message.html = html_body
     with APP.app_context():
+
         mail.send(message)
 
 
