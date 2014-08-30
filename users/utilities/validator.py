@@ -47,3 +47,21 @@ def is_boolean(param_input):
     if param_input.lower() not in ['true', 'false']:
         return False
     return True
+
+
+def validate_user_data(data):
+    REQUIRED_USER_FIELDS = ['name', 'email', 'latitude', 'longitude']
+
+    message = dict()
+
+    # Validate data
+
+    for field in REQUIRED_USER_FIELDS:
+        if not is_required_valid(data[field]):
+            message[field] = '%s is a required field' % field
+    if not is_email_address_valid(data['email']):
+        message['email'] = 'Email address is not valid'
+    if not data['email_updates']:
+        message['email_updates'] = 'Notification must be checked'
+
+    return message

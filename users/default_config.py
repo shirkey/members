@@ -55,4 +55,4 @@ LOG_DIR = '/tmp'
 # If you're using MySQL, refer to
 # http://docs.sqlalchemy.org/en/rel_0_9/core/engines.html
 # for details.
-SQLALCHEMY_DATABASE_URI = "postgresql://localhost:5432/flask_user_map"
+SQLALCHEMY_DATABASE_URI = "postgresql://localhost:5432/memberdb"

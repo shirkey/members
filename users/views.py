@@ -6,16 +6,16 @@
 import json
 
 from flask import render_template, Response, request, current_app
-from werkzeug.exceptions import default_exceptions
 
 # App declared directly in __init__ as per
 # http://flask.pocoo.org/docs/patterns/packages/#larger-applications
 from . import APP
-from users.utilities.helpers import make_json_error, send_async_mail
-from users.utilities.validator import (
-    is_email_address_valid,
-    is_required_valid,
-    is_boolean)
+from users.utilities.helpers import (
+    make_json_error,
+    send_async_mail,
+    parse_user_data
+)
+from users.utilities.validator import validate_user_data
 from users.models import (
     add_user,
     edit_user,
@@ -24,6 +24,15 @@ from users.models import (
     get_user_by_email,
     get_all_users,
 )
+
+
+#ISSUE: this appears to change all HTTP exception handling to JSON-formatted responses
+#TODO: should be set at app initialization instead of running within each user request
+def set_http_status_exceptions_as_json(app):
+    # return any errors as json - see http://flask.pocoo.org/snippets/83/
+    from werkzeug.exceptions import default_exceptions
+    for code in default_exceptions.iterkeys():
+        app.error_handler_spec[None][code] = make_json_error
 
 
 @APP.route('/')
@@ -94,58 +103,21 @@ def add_user_view():
     .. note:: JavaScript on client must update the map on ajax completion
         callback.
     """
-    USER_FIELDS = ['name', 'email', 'latitude', 'longitude', 'website']
-    REQUIRED_USER_FIELDS = ['name', 'email', 'latitude', 'longitude']
-    SOCIAL_ACCOUNT_TYPES = ['twitter']
-
-    message = dict()
-
-    # return any errors as json - see http://flask.pocoo.org/snippets/83/
-    for code in default_exceptions.iterkeys():
-        APP.error_handler_spec[None][code] = make_json_error
+    set_http_status_exceptions_as_json(APP)
 
     # Copy request data
     if request.form is not None:
         req = request.form.copy()
     else:
         req = request.get_json().copy()
+    data = parse_user_data(req)
+    message = validate_user_data(data)
 
-    data = dict()
-
-    # Parse data
-    for val in USER_FIELDS:
-        data[val] = str(req.get(val, '')).strip()
-
-    if 'http://' not in req['website']:
-        data['website'] = 'http://%s' % req['website']
-    data['email_updates'] = True if req['email_updates'].lower() == 'true' else False
-
-    for float_val in ['longitude', 'latitude']:
-        try:
-            data[float_val] = float(data[float_val])
-        except ValueError:
-            print "%s must be a number" % float_val
-
-    social_account_data = data['social_account'] = dict()
-    for sa in SOCIAL_ACCOUNT_TYPES:
-        social_account_data[sa] = str(req.get(sa, '')).strip() or str(req.get('social_account_%s' % sa, '')).strip()
-        # data.pop('social_account_%s' % sa)
-
-    # Validate data
-
-    for field in REQUIRED_USER_FIELDS:
-        if not is_required_valid(data[field]):
-            message[field] = '%s is a required field' % field
-    if not is_email_address_valid(data['email']):
-        message['email'] = 'Email address is not valid'
-    if not data['email_updates']:
-        message['email_updates'] = 'Notification must be checked'
-
-    # Check if the email has been registered by other user
-    user = get_user_by_email(data['email'])
+    # Check if the email is already registered
+    user = get_user_by_email(data.get('email', ''))
     if user is not None:
         message['status'] = '409'
-        message['email'] = 'Email has been registered by other user.'
+        message['email'] = 'User %s is already reserved' % data.get('email', '')
 
     # Process data
     if len(message) != 0:
@@ -246,39 +218,21 @@ def edit_user_controller():
     :returns: A new json response containing status of editing
     :rtype: HttpResponse
     """
-    # return any errors as json - see http://flask.pocoo.org/snippets/83/
-    for code in default_exceptions.iterkeys():
-        APP.error_handler_spec[None][code] = make_json_error
+    set_http_status_exceptions_as_json(APP)
 
-    # Get data from form
-    guid = str(request.form['guid'])
-    name = str(request.form['name']).strip()
-    email = str(request.form['email']).strip()
-    website = str(request.form['website'])
-    email_updates = str(request.form['email_updates'])
-    latitude = str(request.form['latitude'])
-    longitude = str(request.form['longitude'])
-    twitter = request.form["twitter"]
-
-    # Validate the data:
-    message = {}
-    if not is_required_valid(name):
-        message['name'] = 'Name is required'
-    if not is_email_address_valid(email):
-        message['email'] = 'Email address is not valid'
-    if not is_required_valid(email):
-        message['email'] = 'Email is required'
-    elif not is_boolean(email_updates):
-        message['email_updates'] = 'Notification must be checked'
-
-    # Modify the data:
-    if email_updates == 'true':
-        email_updates = True
+    # Copy request data
+    if request.form is not None:
+        req = request.form.copy()
     else:
-        email_updates = False
+        req = request.get_json().copy()
+    data = parse_user_data(req)
+    message = validate_user_data(data)
 
-    if len(website.strip()) != 0 and 'http' not in website:
-        website = 'http://%s' % website
+    # Check if the email is already registered
+    user = get_user_by_email(data.get('email', ''))
+    if user is None:
+        message['status'] = '404'
+        message['email'] = 'User %s not found' % data.get('email', '')
 
     # Process data
     if len(message) != 0:

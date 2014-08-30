@@ -69,3 +69,29 @@ def send_async_mail(sender, recipients, subject, text_body, html_body):
     )
     sender_thread.start()
     return sender_thread
+
+def parse_user_data(req):
+    USER_FIELDS = ['name', 'email', 'latitude', 'longitude', 'website']
+    SOCIAL_ACCOUNT_TYPES = ['twitter']
+
+    data = dict()
+
+    # Parse data
+    for val in USER_FIELDS:
+        data[val] = str(req.get(val, '')).strip()
+
+    if 'http://' not in req['website']:
+        data['website'] = 'http://%s' % req['website']
+    data['email_updates'] = True if req['email_updates'].lower() == 'true' else False
+
+    for float_val in ['longitude', 'latitude']:
+        try:
+            data[float_val] = float(data[float_val])
+        except ValueError:
+            print "%s must be a number" % float_val
+
+    social_account_data = data['social_account'] = dict()
+    for sa in SOCIAL_ACCOUNT_TYPES:
+        social_account_data[sa] = str(req.get(sa, '')).strip() or str(req.get('social_account_%s' % sa, '')).strip()
+
+    return data
